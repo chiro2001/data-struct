@@ -1,0 +1,46 @@
+# depslib dependency file v1.0
+1616681671 source:d:\code\lab2\main.c
+	<stdlib.h>
+	<stdio.h>
+	"queue.h"
+
+1616682620 d:\code\lab2\queue.h
+	"stack.h"
+
+1616682631 d:\code\lab2\stack.h
+
+1616682578 source:d:\code\lab2\queue.c
+	"queue.h"
+
+1616682609 source:d:\code\lab2\stack.c
+	"stack.h"
+
+1616682609 source:d:\code\lab2_ta\stack.c
+	"stack.h"
+
+1616682631 d:\code\lab2_ta\stack.h
+
+1616682769 source:d:\code\lab2_ta\main.c
+	<stdlib.h>
+	<stdio.h>
+	"queue.h"
+
+1616682620 d:\code\lab2_ta\queue.h
+	"stack.h"
+
+1616682771 source:d:\code\lab2_ta\queue.c
+	"queue.h"
+
+1616684102 source:d:\projects\datastructure\第一次实验_学生部分\实验2\lab2_stu\main.c
+	<stdlib.h>
+	<stdio.h>
+	"queue.h"
+
+1616684014 d:\projects\datastructure\第一次实验_学生部分\实验2\lab2_stu\queue.h
+	"stack.h"
+
+1616682632 d:\projects\datastructure\第一次实验_学生部分\实验2\lab2_stu\stack.h
+
+1616683678 source:d:\projects\datastructure\第一次实验_学生部分\实验2\lab2_stu\stack.c
+	"stack.h"
+

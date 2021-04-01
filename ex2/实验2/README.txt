@@ -1,0 +1,1 @@
+使用codeblocks导入lab2_stu项目即可。

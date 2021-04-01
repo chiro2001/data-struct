@@ -1,0 +1,25 @@
+* part1:
+class1:
+{ID:student10, Grade:100}->{ID:student8, Grade:99}->{ID:student9, Grade:96}->{ID:student7, Grade:95}->{ID:student6, Grade:87}->{ID:student3, Grade:86}->{ID:student2, Grade:77}->{ID:student4, Grade:61}->{ID:student5, Grade:58}->{ID:student1, Grade:43}
+class2:
+{ID:student21, Grade:100}->{ID:student12, Grade:99}->{ID:student14, Grade:96}->{ID:student20, Grade:95}->{ID:student19, Grade:93}->{ID:student16, Grade:91}->{ID:student15, Grade:89}->{ID:student13, Grade:76}->{ID:student17, Grade:66}->{ID:student11, Grade:58}->{ID:student18, Grade:56}
+* part2:
+class1:
+{ID:student1, Grade:43}->{ID:student5, Grade:58}->{ID:student4, Grade:61}->{ID:student2, Grade:77}->{ID:student3, Grade:86}->{ID:student6, Grade:87}->{ID:student7, Grade:95}->{ID:student9, Grade:96}->{ID:student8, Grade:99}->{ID:student10, Grade:100}
+class2:
+{ID:student18, Grade:56}->{ID:student11, Grade:58}->{ID:student17, Grade:66}->{ID:student13, Grade:76}->{ID:student15, Grade:89}->{ID:student16, Grade:91}->{ID:student19, Grade:93}->{ID:student20, Grade:95}->{ID:student14, Grade:96}->{ID:student12, Grade:99}->{ID:student21, Grade:100}
+* part3:
+{ID:student8, Grade:99}
+
+* part1:
+class1:
+{ID:student2, Grade:99}->{ID:student4, Grade:96}->{ID:student5, Grade:95}->{ID:student1, Grade:93}
+class2:
+{ID:student12, Grade:99}->{ID:student14, Grade:96}->{ID:student20, Grade:95}->{ID:student19, Grade:93}->{ID:student16, Grade:91}->{ID:student15, Grade:89}->{ID:student13, Grade:76}->{ID:student17, Grade:66}->{ID:student11, Grade:58}->{ID:student18, Grade:56}
+* part2:
+class1:
+{ID:student1, Grade:93}->{ID:student5, Grade:95}->{ID:student4, Grade:96}->{ID:student2, Grade:99}
+class2:
+{ID:student18, Grade:56}->{ID:student11, Grade:58}->{ID:student17, Grade:66}->{ID:student13, Grade:76}->{ID:student15, Grade:89}->{ID:student16, Grade:91}->{ID:student19, Grade:93}->{ID:student20, Grade:95}->{ID:student14, Grade:96}->{ID:student12, Grade:99}
+* part3:
+{ID:student1, Grade:93}

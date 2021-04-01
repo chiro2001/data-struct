@@ -1,0 +1,120 @@
+GetTop failed
+Stack contains:
+
+The Stack is Empty
+Stack contains:
+
+Push:0
+Stack contains:0 
+
+Push:1
+Stack contains:0 1 
+
+Push:2
+Stack contains:0 1 2 
+
+Push:3
+Stack contains:0 1 2 3 
+
+Push:4
+Stack contains:0 1 2 3 4 
+
+Push:5
+Stack contains:0 1 2 3 4 5 
+
+Push:6
+Stack contains:0 1 2 3 4 5 6 
+
+Push:7
+Stack contains:0 1 2 3 4 5 6 7 
+
+Push:8
+Stack contains:0 1 2 3 4 5 6 7 8 
+
+Push:9
+Stack contains:0 1 2 3 4 5 6 7 8 9 
+
+GetTop:9
+Stack contains:0 1 2 3 4 5 6 7 8 9 
+
+The Stack is not Empty
+Stack contains:0 1 2 3 4 5 6 7 8 9 
+
+Pop:9
+Stack contains:0 1 2 3 4 5 6 7 8 
+
+Pop:8
+Stack contains:0 1 2 3 4 5 6 7 
+
+Pop:7
+Stack contains:0 1 2 3 4 5 6 
+
+Pop:6
+Stack contains:0 1 2 3 4 5 
+
+Pop:5
+Stack contains:0 1 2 3 4 
+
+Pop:4
+Stack contains:0 1 2 3 
+
+GetHead failed
+Queue contains:
+
+The Queue is Empty
+Queue contains:
+
+EnQueue:0
+Queue contains:0 
+
+EnQueue:1
+Queue contains:0 1 
+
+EnQueue:2
+Queue contains:0 1 2 
+
+EnQueue:3
+Queue contains:0 1 2 3 
+
+EnQueue:4
+Queue contains:0 1 2 3 4 
+
+EnQueue:5
+Queue contains:0 1 2 3 4 5 
+
+EnQueue:6
+Queue contains:0 1 2 3 4 5 6 
+
+EnQueue:7
+Queue contains:0 1 2 3 4 5 6 7 
+
+EnQueue:8
+Queue contains:0 1 2 3 4 5 6 7 8 
+
+EnQueue:9
+Queue contains:0 1 2 3 4 5 6 7 8 9 
+
+GetHead:0
+Queue contains:0 1 2 3 4 5 6 7 8 9 
+
+The Queue is not Empty
+Queue contains:0 1 2 3 4 5 6 7 8 9 
+
+DeQueue:0
+Queue contains:1 2 3 4 5 6 7 8 9 
+
+DeQueue:1
+Queue contains:2 3 4 5 6 7 8 9 
+
+DeQueue:2
+Queue contains:3 4 5 6 7 8 9 
+
+DeQueue:3
+Queue contains:4 5 6 7 8 9 
+
+DeQueue:4
+Queue contains:5 6 7 8 9 
+
+DeQueue:5
+Queue contains:6 7 8 9 
+
