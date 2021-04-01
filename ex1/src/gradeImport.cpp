@@ -119,9 +119,10 @@ long readFileData(const string &filename, StudentList &class1, StudentList &clas
   return size;
 }
 
-// 创建交叉链表
-// 相交方法是将b中的前一结点指向a中的首个相交结点
-// 使用了智能指针使得未被引用的数据自动删除
+// @prog    : 创建交叉链表
+// @rets    : 通过参数引用修改 head1, head2
+// @notice  : 相交方法是将b中的前一结点指向a中的首个相交结点
+//            使用了智能指针使得未被引用的数据自动删除
 void createCrossLink(StudentList &head1, StudentList &head2, CrossLink &cross) {
 //  auto p1 = head1->step(cross.first - 2), p2 = head2->step(cross.second - 2);
   auto p1 = head1, p2 = head2;
@@ -146,7 +147,8 @@ void createCrossLink(StudentList &head1, StudentList &head2, CrossLink &cross) {
   // 在这之后未被引用的数据自动删除
 }
 
-// 找到相交的第一个结点
+// @prog    : 找到相交的第一个结点
+// @rets    : 返回找到的交点
 StudentList findCrossBeginNode(StudentList &head1, StudentList &head2) {
   auto p1 = head1, p2 = head2;
   while (p1 != nullptr) {
@@ -162,7 +164,7 @@ StudentList findCrossBeginNode(StudentList &head1, StudentList &head2) {
   return nullptr;
 }
 
-// 输出该表的成绩情况
+// @prog    : 输出该表的成绩情况
 void outputStudentLinkedList(StudentList &head) {
   auto p = head;
   while (p != nullptr) {
@@ -171,7 +173,8 @@ void outputStudentLinkedList(StudentList &head) {
   }
 }
 
-// 翻转链表
+// @prog    : 翻转链表
+// @rets    : 通过引用修改链表
 void reverseLinkedList(StudentList &head) {
   // 再反插一次吧...之前的方法会出现循环引用
   // 由于会自动释放内存，所以内存占用还是一样的
@@ -186,17 +189,19 @@ void reverseLinkedList(StudentList &head) {
   head = newHead;
 }
 
+// @prog    : 主函数
 int main() {
   string filename = "./gradeImport.in";
   StudentList class1 = nullptr, class2 = nullptr;
   CrossLink cross;
   long offset = 0;
   while ((offset = readFileData(filename, class1, class2, cross, offset)) > 0) {
+    // 调试信息
 //    puts("class 1:");
 //    linked_list_print(class1);
 //    puts("class 2:");
 //    linked_list_print(class2);
-    std::cout << "offset: " << offset << ", cross: <" << cross.first << ", " << cross.second << ">" << std::endl;
+//    std::cout << "offset: " << offset << ", cross: <" << cross.first << ", " << cross.second << ">" << std::endl;
 
     std::cout << "* part1:" << std::endl << "class1:" << std::endl;
     outputStudentLinkedList(class1);
@@ -208,13 +213,11 @@ int main() {
     outputStudentLinkedList(class1);
     std::cout << "class2:" << std::endl;
     outputStudentLinkedList(class1);
-
     createCrossLink(class1, class2, cross);
-
     auto node = findCrossBeginNode(class1, class2);
+    // 有可能没有交点
     if (node != nullptr)
       std::cout << "* part3:" << std::endl << node->data << std::endl;
-
     offset++;
     // 销毁数据
     // 空间因为智能指针的计数被降到0而自动释放

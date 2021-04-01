@@ -84,13 +84,13 @@ public:
 template<typename T>
 using linked_list_p = std::shared_ptr<linked_list<T>>;
 
-// 从对象生成一个节点
+// @prog    : 从对象生成一个节点
 template<typename T>
 auto linked_list_make(T &d) {
   return std::make_shared<linked_list<T>>(d);
 }
 
-// 检查是否存在环
+// @prog    : 检查是否存在环
 template<typename T>
 bool linked_list_check_circulation(linked_list_p<T> &p) {
   // 快慢指针法
@@ -103,6 +103,7 @@ bool linked_list_check_circulation(linked_list_p<T> &p) {
   return true;
 }
 
+// @prog    : 打印整条链表的数据
 template<typename T>
 void linked_list_print(linked_list_p<T> &head) {
   auto p = head;
