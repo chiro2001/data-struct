@@ -14,11 +14,11 @@ include_directories(${include_dirs})
 # Src
 
 file(GLOB_RECURSE source_files
-        "${PROJECT_SOURCE_DIR}/linked_list.hpp"
-        "${PROJECT_SOURCE_DIR}/chistring.hpp")
+        "${PROJECT_SOURCE_DIR}/queue.c"
+        "${PROJECT_SOURCE_DIR}/stack.c")
 message(STATUS "Source files: ${source_files}")
 
-add_executable(main ${PROJECT_SOURCE_DIR}/gradeImport.cpp ${source_files})
+add_executable(main ${PROJECT_SOURCE_DIR}/main.c ${source_files})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

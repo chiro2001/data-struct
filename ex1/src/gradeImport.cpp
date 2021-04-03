@@ -1,23 +1,24 @@
-#include <fstream>
 #include <iostream>
 #include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-#include <sstream>
 
 #include "linked_list.hpp"
+#include "chistring.hpp"
+
+// 调试输出
+#define PINT(x) printf("Line %d:\t"#x" = %d\n", __LINE__, x)
+#define PCHAR(x) printf("%c", x)
 
 using namespace chilib;
 using std::ios;
-using std::string;
+// 声明：本程序没有使用 std::string
+// using std::string;
 
 class StudentLinkedListNode {
 public:
-  string stuId;
+  chistring stuId;
   int grade{};
 
-  StudentLinkedListNode(string stuId_, int grade_) : stuId(std::move(stuId_)), grade(grade_) {};
+  StudentLinkedListNode(const chistring &stuId_, int grade_) : stuId(stuId_), grade(grade_) {};
 
   // 重载一下 << 让这个结构能直接输出
   friend std::ostream &operator<<(std::ostream &out, const StudentLinkedListNode &stu) {
@@ -34,11 +35,11 @@ using CrossLink = std::pair<int, int>;
 namespace ex {
 class Base : public std::exception {
 public:
-  string message;
+  chistring message;
 
   Base() = default;
 
-  explicit Base(string message_) : message(std::move(message_)) {}
+  explicit Base(const chistring &message_) : message(message_) {}
 
   const char *what() {
     std::cerr << "Error: " << typeid(this).name() << std::endl;
@@ -51,15 +52,35 @@ class ReadFileData : public Base {
 public:
   ReadFileData() = default;
 
-  explicit ReadFileData(string message_) : Base(std::move(message_)) {}
+  explicit ReadFileData(const chistring &message_) : Base(message_) {}
 };
+}
+
+size_t getFileLine(FILE *fp, char *dst, size_t offset) {
+  if (!fp) throw ex::ReadFileData();
+  fseek(fp, offset, SEEK_SET);
+  char *p = dst;
+  size_t retry = 2;
+  int c;
+  while (retry > 0 && (p == dst || *dst == '\n')) {
+    while ((c = fgetc(fp)) != '\n' && c > 0) *(p++) = (char) c;
+    *p = '\0';
+    retry--;
+  }
+//  puts(dst);
+  offset += (long) (p - dst) + 1;
+  fseek(fp, offset, SEEK_SET);
+//  PINT(ftell(fp));
+//  PINT(offset);
+  return offset;
 }
 
 // @prog    : 使用头插法读取文件数据到一个链表
 // @rets    : 通过引用返回两个链表头指针和交叉节点，直接返回读取文件的offset
 // @notice  : 读取完需要的数据或者EOF就表示文件结束
-long readFileData(const string &filename, StudentList &class1, StudentList &class2, CrossLink &cross,
+long readFileData(const chistring &filename, StudentList &class1, StudentList &class2, CrossLink &cross,
                   size_t offset = 0) {
+#ifdef USING_STRING
   int length1 = 0, length2 = 0;
   // 尝试打开文件
   std::ifstream fileData(filename);
@@ -117,6 +138,36 @@ long readFileData(const string &filename, StudentList &class1, StudentList &clas
   auto size = fileData.tellg();
   fileData.close();
   return size;
+#endif
+  int length1 = 0, length2 = 0;
+  FILE *fp = fopen(filename.c_str(), "r");
+  if (!fp) throw ex::ReadFileData();
+  fseek(fp, offset, SEEK_SET);
+//  PINT(offset);
+  char buf[128];
+  // 因为fscanf貌似有点问题，会让文件指针直接指向负值，所以使用了自己的读函数
+  offset = getFileLine(fp, buf, offset);
+  if (sscanf(buf, "%d%d", &length1, &length2) <= 0) return -1;
+  class1 = class2 = nullptr;
+  auto readClassData = [&offset](StudentList &head, int length, FILE *fp) {
+    char buf[512], stuId[128];
+    int grade;
+    for (int i = 0; i < length; i++) {
+      offset = getFileLine(fp, buf, offset);
+      sscanf(buf, "%s%d", stuId, &grade);
+      auto node = StudentLinkedListNode(chistring(stuId), grade);
+      auto p = linked_list_make<StudentLinkedListNode>(node);
+      p->link(head);
+      head = p;
+    }
+  };
+  readClassData(class1, length1, fp);
+  readClassData(class2, length2, fp);
+  // 读取最后一行
+  offset = getFileLine(fp, buf, offset);
+  sscanf(buf, "%d%d", &cross.first, &cross.second);
+  fclose(fp);
+  return offset;
 }
 
 // @prog    : 创建交叉链表
@@ -191,7 +242,7 @@ void reverseLinkedList(StudentList &head) {
 
 // @prog    : 主函数
 int main() {
-  string filename = "./gradeImport.in";
+  chistring filename("./gradeImport.in");
   StudentList class1 = nullptr, class2 = nullptr;
   CrossLink cross;
   long offset = 0;
@@ -223,5 +274,6 @@ int main() {
     // 空间因为智能指针的计数被降到0而自动释放
     class1 = class2 = nullptr;
   }
+//  PINT(offset);
   return 0;
 }

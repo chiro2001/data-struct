@@ -32,11 +32,18 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="../src/chistring.hpp" />
-		<Unit filename="../src/gradeImport.cpp" />
-		<Unit filename="../src/linked_list.hpp" />
-		<Extensions>
-			<lib_finder disable_auto="1" />
-		</Extensions>
+		<Unit filename="../src/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/queue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/queue.h" />
+		<Unit filename="../src/stack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/stack.h" />
+		<Unit filename="../src/utils.h" />
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
