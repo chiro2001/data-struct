@@ -48,7 +48,7 @@ public:
     using self = iterator_shared_ptr<T>;
     std::shared_ptr<T> node;
 
-    explicit iterator_shared_ptr(std::shared_ptr<T> d) : node(d) {}
+    explicit iterator_shared_ptr(std::shared_ptr<T> &d) : node(d) {}
 
     ref operator*() { return *node; }
 

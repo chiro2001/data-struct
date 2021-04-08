@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <initializer_list>
 #include "iterator_base.hpp"
 #include "chistring.hpp"
 
@@ -13,6 +14,18 @@ namespace chilib {
 // 单向链表，C++智能指针实现
 template<typename T>
 class linked_list : public iterator_base {
+private:
+  std::shared_ptr<linked_list<T>> next = nullptr;  // 指向下一个节点的指针
+  T data{};                                        // 当前数据
+
+  void range_check(size_t pos) {
+    if (pos >= this->size()) {
+      char buf[512];
+      sprintf(buf, "linked_list::range_check: pos (which is %d) >= this->size() (which is %d)", pos, this->size());
+      throw std::out_of_range(buf);
+    }
+  }
+
 public:
   linked_list() = default;
 
@@ -22,8 +35,9 @@ public:
 
   ~linked_list() = default;
 
-  std::shared_ptr<linked_list<T>> next = nullptr;  // 指向下一个节点的指针
-  T data{};                                        // 当前数据
+  auto get_next() { return next; }
+
+  T &get_data() { return data; }
 
   /*!
    * 得到链表大小（长度）
@@ -86,6 +100,18 @@ public:
   }
 
   /*!
+   * 连接一个节点到this节点后面
+   * @param d 所要添加的节点数据
+   * @return 节点对应指针
+   * @note 这个传入的节点之后的数据被释放
+   */
+  auto link(T *d) {
+    auto p = linked_list::make(*d);
+    this->link(p);
+    return p;
+  }
+
+  /*!
    * 接一个已经存在的链表串到本节点之后
    * @param p 链表串
    * @return 连接完成的链表串
@@ -132,10 +158,18 @@ public:
  * @param d 数据
  * @return 链表首节点
  */
-  static
-
-  auto make(T &d) {
+  static auto make(T &d) {
     return std::make_shared<linked_list<T>>(d);
+  }
+
+  static auto make(std::initializer_list<T> li) {
+    auto h = make_head();
+    if (li.size() == 0) return h;
+    auto p = h;
+    for (auto d : li) {
+      p = p->link(d);
+    }
+    return h;
   }
 
 /*!
@@ -220,6 +254,15 @@ public:
   }
 
 /*!
+ * 向尾部添加元素
+ * @param d 元素
+ * @return 添加的节点指针
+ */
+  auto emplace_back(T *d) {
+    return this->push_back(*d);
+  }
+
+/*!
  * 删除尾部元素
  */
   void pop_back() noexcept {
@@ -233,14 +276,6 @@ public:
     pre->next = nullptr;
   }
 
-  void range_check(size_t pos) {
-    if (pos >= this->size()) {
-      char buf[512];
-      sprintf(buf, "vector::_M_range_check: pos (which is %d) >= this->size() (which is %d)", pos, this->size());
-      throw std::out_of_range(buf);
-    }
-  }
-
   T &at(size_t pos) {
     this->range_check(pos);
     auto p = this->step(pos);
@@ -248,7 +283,9 @@ public:
   }
 
   iterator insert(const iterator &it, T &d) {
-    (*it)->emplace_back(d);
+    auto n = (*it)->get_next();
+    auto p = (*it)->link(d);
+    p->get_next() = n;
   }
 };
 

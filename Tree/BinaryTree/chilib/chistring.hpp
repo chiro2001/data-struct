@@ -6,34 +6,47 @@
 #include <cstring>
 #include <sstream>
 #include <memory>
+#include "iterator_base.hpp"
 
 namespace chilib {
 
 //typedef char char;
 
-class string {
+class string : public iterator_base {
 private:
   char *mdata = nullptr;
   size_t msize = 0;
 
   // 构造重用部分
-  inline void create_from_str(const char *str) {
-    if (str == nullptr) {
-      // 默认需要加上内存分配，一个\\0
-      this->mdata = new char[1];
-      this->mdata[0] = '\0';
+  inline void create_from_str(const char *str, size_t size = 0) {
+    if (size == 0) {
+      if (str == nullptr) {
+        // 默认需要加上内存分配，一个\\0
+        this->mdata = new char[1];
+        this->mdata[0] = '\0';
+      } else {
+        this->mdata = new char[this->msize + 1];
+        this->msize = strlen(str);
+        strcpy(this->mdata, str);
+      }
     } else {
-      this->msize = strlen(str);
-      this->mdata = new char[this->msize + 1];
-      strcpy(this->mdata, str);
+      if (str == nullptr) {
+        this->mdata = new char[size];
+        this->mdata[0] = '\0';
+      } else {
+        auto len = strlen(str) > size ? strlen(str) : size;
+        this->mdata = new char[len];
+        this->msize = len;
+      }
     }
+
   }
 
 public:
 
   // 默认构造函数
-  explicit string(const char *str = nullptr) {
-    this->create_from_str(str);
+  string(const char *str, size_t size = 0) { // NOLINT(google-explicit-constructor)
+    this->create_from_str(str, size);
   }
 
   // 分配内存
@@ -54,6 +67,21 @@ public:
 
   // 析构函数
   ~string() { delete[] this->mdata; }
+
+  // 迭代器
+  class iterator : public iterator_ptr<char> {
+  public:
+    explicit iterator(char &d) : iterator_ptr<char>(d) {}
+
+    iterator &operator++() override {
+      this->node++;
+      return *this;
+    }
+  };
+
+  iterator begin() { return iterator(*this->mdata); }
+
+  iterator end() { return iterator(*(this->mdata + this->length())); }
 
   // 字符串赋值
   string &operator=(const string &str) {
@@ -100,6 +128,11 @@ public:
     memcpy(n.mdata, this->mdata, this->size());
     memcpy(n.mdata + this->msize, s.mdata, s.size());
     return n;
+  }
+
+  string &operator=(const char *c) {
+    this->create_from_str(c);
+    return *this;
   }
 };
 }
