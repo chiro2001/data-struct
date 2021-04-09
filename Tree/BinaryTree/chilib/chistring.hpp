@@ -1,4 +1,4 @@
-// Last modified at 2021-04-07 by Chiro
+// Last modified at 2021-04-09 by Chiro
 
 #ifndef CHILIB_CHISTRING_HPP
 #define CHILIB_CHISTRING_HPP
@@ -10,12 +10,11 @@
 
 namespace chilib {
 
-//typedef char char;
-
 class string : public iterator_base {
 private:
   char *mdata = nullptr;
   size_t msize = 0;
+  static const size_t buf_size = 512;
 
   // 构造重用部分
   inline void create_from_str(const char *str, size_t size = 0) {
@@ -47,6 +46,10 @@ public:
   // 默认构造函数
   string(const char *str, size_t size = 0) { // NOLINT(google-explicit-constructor)
     this->create_from_str(str, size);
+  }
+
+  string() {
+    this->create_from_str(nullptr, 0);
   }
 
   // 分配内存
@@ -122,6 +125,14 @@ public:
     return out;
   }
 
+  // 重载输入
+  friend std::istream &operator>>(std::istream &in, string &s) {
+    static char buf[string::buf_size];
+    in >> buf;
+    s.create_from_str(buf);
+    return in;
+  }
+
   string operator+(string &s) const {
     // 构造新的字符串
     string n(s.length() + this->length());
@@ -133,6 +144,24 @@ public:
   string &operator=(const char *c) {
     this->create_from_str(c);
     return *this;
+  }
+
+  void range_check(size_t pos) const {
+    if (pos >= this->size()) {
+      char buf[512];
+      sprintf(buf, "vector::range_check: pos (which is %d) >= this->size() (which is %d)", pos, this->size());
+      throw std::out_of_range(buf);
+    }
+  }
+
+  // 取值
+  char &at(size_t pos) {
+    this->range_check(pos);
+    return this->mdata[pos];
+  }
+
+  char &operator[](size_t pos) {
+    return this->at(pos);
   }
 };
 }

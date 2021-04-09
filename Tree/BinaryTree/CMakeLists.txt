@@ -19,6 +19,7 @@ file(GLOB_RECURSE source_files
 message(STATUS "Source files: ${source_files}")
 
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp ${source_files})
+add_executable(P1305 ${PROJECT_SOURCE_DIR}/P1305.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

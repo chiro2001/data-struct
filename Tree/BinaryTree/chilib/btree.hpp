@@ -11,11 +11,20 @@ using std::shared_ptr;
 
 namespace chilib {
 
-typedef int T;
-
 class btree {
 public:
+  using T = char;
+
   explicit btree(T val) : data(val) {}
+
+  explicit btree(const T *val) : data(*val) {}
+
+  btree() = default;
+
+  static shared_ptr<btree> make(T &d) {
+    auto p = new btree(d);
+    return std::shared_ptr<btree>(p);
+  }
 
   T data{};
   // 是否线索化
@@ -24,16 +33,35 @@ public:
   bool tag_left = false, tag_right = false;
   shared_ptr<btree> child_left = nullptr, child_right = nullptr;
 
+  T &get_data() { return data; }
+
+  shared_ptr<btree> &get_left() { return child_left; }
+
+  shared_ptr<btree> &get_right() { return child_right; }
+
   // 前序遍历 + 中序遍历建树
 
   // 中序遍历本树，遍历到 callback 返回 false 为止
-  void traversal_inorder(bool (&callback)(btree &)) {
+  template<typename F>
+  void traversal_inorder(F const &callback) {
     if (!is_in_threading) {
       if (child_left != nullptr)
         child_left->traversal_inorder(callback);
       if (!callback(*this)) return;
       if (child_right != nullptr)
         child_right->traversal_inorder(callback);
+    }
+  }
+
+  // 前序遍历本树
+  template<typename F>
+  void traversal_preorder(F const &callback) {
+    if (!is_in_threading) {
+      if (!callback(*this)) return;
+      if (child_left != nullptr)
+        child_left->traversal_preorder(callback);
+      if (child_right != nullptr)
+        child_right->traversal_preorder(callback);
     }
   }
 };

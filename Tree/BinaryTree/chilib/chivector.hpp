@@ -144,6 +144,10 @@ public:
     return this->head->step(pos / block_size)->get_data().at(pos % block_size);
   }
 
+  T &operator[](size_t pos) {
+    return this->at(pos);
+  }
+
   class iterator : public iterator_shared_ptr<linked_list < block>>
 
   {
@@ -158,9 +162,9 @@ public:
     ofst) : iterator_shared_ptr < linked_list < block >> (d), offset(ofst)
     {}
 
-    T &operator*() { return this->node->get_data().at(this->offset); }
+    T &operator*() override { return this->node->get_data().at(this->offset); }
 
-    T *operator->() { return &(operator*()); }
+    T *operator->() override { return &(operator*()); }
 
     iterator &operator++()
     override{

@@ -10,7 +10,6 @@
 namespace chilib {
 
 // 基础可迭代对象
-typedef int T;
 
 class iterator_base {
 public:

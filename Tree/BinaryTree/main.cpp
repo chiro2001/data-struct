@@ -1,5 +1,6 @@
 #include "iterator_base.hpp"
 #include "linked_list.hpp"
+#include "btree.hpp"
 #include "chistring.hpp"
 #include <iostream>
 #include <stdexcept>
@@ -56,46 +57,86 @@ using namespace chilib;
 //}
 
 
-int main() {
-  vector<int> v;
-  std::cout << "v.length() = " << v.length() << std::endl;
-  v.emplace_back(1);
-  v.emplace_back(3);
-  v.emplace_back(6);
-  for (const auto p : v) {
-    std::cout << p << std::endl;
-  }
-  for (auto &p : v) {
-    p *= 2;
-  }
-  std::cout << "v.length() = " << v.length() << std::endl;
-  for (int i = 0; i < v.length(); i++) {
-    std::cout << v.at(i) << std::endl;
-    v.at(i) *= 3;
-  }
-  auto it = v.begin();
-  while (it != v.end()) {
-    *it -= 10;
-    ++it;
-  }
-  for (const auto p : v) {
-    std::cout << p << std::endl;
-  }
-  vector<int> vs(10);
-  std::cout << "vs.length() = " << vs.length() << std::endl;
-  vector<int> vv = {1, 2, 3};
-  std::cout << "vv.length() = " << vv.length() << std::endl;
-  vv.emplace_back(4);
-  std::cout << "vv.length() = " << vv.length() << std::endl;
-  for (const auto &pp : vv) {
-    std::cout << pp << std::endl;
-  }
-  std::cout << "sizeof(vs) = " << sizeof(vs) << std::endl;
-  std::cout << "sizeof(vv) = " << sizeof(vv) << std::endl;
+//int main() {
+//  vector<int> v;
+//  std::cout << "v.length() = " << v.length() << std::endl;
+//  v.emplace_back(1);
+//  v.emplace_back(3);
+//  v.emplace_back(6);
+//  for (const auto p : v) {
+//    std::cout << p << std::endl;
+//  }
+//  for (auto &p : v) {
+//    p *= 2;
+//  }
+//  std::cout << "v.length() = " << v.length() << std::endl;
+//  for (int i = 0; i < v.length(); i++) {
+//    std::cout << v.at(i) << std::endl;
+//    v.at(i) *= 3;
+//  }
+//  auto it = v.begin();
+//  while (it != v.end()) {
+//    *it -= 10;
+//    ++it;
+//  }
+//  for (const auto p : v) {
+//    std::cout << p << std::endl;
+//  }
+//  vector<int> vs(10);
+//  std::cout << "vs.length() = " << vs.length() << std::endl;
+//  vector<int> vv = {1, 2, 3};
+//  std::cout << "vv.length() = " << vv.length() << std::endl;
+//  vv.emplace_back(4);
+//  std::cout << "vv.length() = " << vv.length() << std::endl;
+//  for (const auto &pp : vv) {
+//    std::cout << pp << std::endl;
+//  }
+//  std::cout << "sizeof(vs) = " << sizeof(vs) << std::endl;
+//  std::cout << "sizeof(vv) = " << sizeof(vv) << std::endl;
+//
+//  linked_list_p<int> li = linked_list<int>::make({1, 2, 3});
+//  for (auto &p : *li) {
+//    std::cout << "li: " << p.get_data() << std::endl;
+//  }
+//  return 0;
+//}
 
-  linked_list_p<int> li = linked_list<int>::make({1, 2, 3});
-  for (auto &p : *li) {
-    std::cout << "li: " << p.get_data() << std::endl;
+// 洛谷 P1305 新二叉树
+int main() {
+  int n;
+  btree b('*');
+  std::cin >> n;
+  string s;
+  while (n--) {
+    std::cin >> s;
+    if (s.length() != 3) continue;
+    auto use = [](btree &bt, string &str) {
+      if (str.length() != 3) return;
+      bt.get_data() = str[0];
+      bt.get_left() = btree::make(str[1]);
+      bt.get_right() = btree::make(str[2]);
+//      std::cout << "use: " << str[0] << " -> " << str[1] << " + " << str[2] << std::endl;
+    };
+    if (b.get_data() == '*') {
+      use(b, s);
+      continue;
+    }
+    // 不是对根节点操作就先遍历找出节点
+    b.traversal_inorder([&s, use](btree &t) -> bool {
+//      std::cout << "visit: " << t.get_data() << std::endl;
+      if (t.get_data() == s[0]) {
+        use(t, s);
+        return false;
+      }
+      return true;
+    });
   }
+  // 前序遍历
+  b.traversal_preorder([](btree &t) -> bool {
+    if (t.get_data() != '*')
+      std::cout << t.get_data();
+    return true;
+  });
+  std::cout << std::endl;
   return 0;
 }
