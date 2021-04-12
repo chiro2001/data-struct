@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1617356133 source:d:\programs\data-struct\ex1\src\gradeimport.cpp
+	<iostream>
+	<memory>
+	<string>
+	"linked_list.hpp"
+	"chistring.hpp"
+
+1617289763 d:\programs\data-struct\ex1\src\linked_list.hpp
+	<iostream>
+	<memory>
+
+1617345624 d:\programs\data-struct\ex1\src\chistring.hpp
+	<cstring>
+
