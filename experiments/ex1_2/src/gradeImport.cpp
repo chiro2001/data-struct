@@ -2,8 +2,8 @@
 #include <memory>
 //#include <fstream>
 
-#include "linked_list.hpp"
-#include "chistring.hpp"
+#include "chilib/linked_list.hpp"
+#include "chilib/chistring.hpp"
 
 // 调试输出
 #define PINT(x) printf("Line %d:\t"#x" = %d\n", __LINE__, x)
@@ -162,15 +162,7 @@ long readFileData(const chilib::string &filename, StudentList &class1, StudentLi
       sscanf(buf, "%s%d", stuId, &grade);
       chilib::string stuIdString = chilib::string(stuId);
       auto node = StudentLinkedListNode(stuIdString, grade);
-      auto p = linked_list<StudentLinkedListNode>::make(node);
-      if (head->get_next() == nullptr) {
-        head->link(p);
-      } else {
-        auto tmp = head->get_next();
-        head->get_next() = nullptr;
-        p->link(tmp);
-        head->link(p);
-      }
+      head->insert(node);
     }
   };
   readClassData(class1, length1, fp);
@@ -190,14 +182,14 @@ void createCrossLink(StudentList &head1, StudentList &head2, CrossLink &cross) {
   // shared_ptr不能指向自己，特殊处理0
   if (cross.first == 0) {
     auto pp2 = head2->step(cross.second - 1);
-    pp2->get_next() = head1->get_next();
+    pp2->link(head1->get_next());
 //    std::cout << "###### Create node at " << head1->get_next()->get_data() << std::endl;
     return;
   }
   auto p1 = head1->step(cross.first - 1), p2 = head2->step(cross.second - 1);
   if (p1 == nullptr || p2 == nullptr || p1->get_next() == nullptr || p2->get_next() == nullptr) return;
 //  std::cout << "###### Create node at " << p1->get_next()->get_data() << std::endl;
-  p2->get_next() = p1->get_next();
+  p2->link(p1->get_next());
   // 在这之后未被引用的数据自动删除
 }
 
@@ -249,19 +241,12 @@ void reverseLinkedList(StudentList &head) {
   // 再反插一次吧...之前的方法会出现循环引用
   // 由于会自动释放内存，所以内存占用还是一样的
   auto newHead = linked_list<StudentLinkedListNode>::make_head();
-  auto newP = newHead->get_next();
   if (head->get_next() == nullptr) {
     return;
   }
-
   head = head->get_next();
-  newHead->emplace_back(&head->get_data());
   while (head != nullptr) {
-    auto tmp = newHead->get_next();
-    newHead->get_next() = nullptr;
-    auto p = linked_list<StudentLinkedListNode>::make(head->get_data());
-    p->link(tmp);
-    newHead->link(p);
+    newHead->insert(head->get_data());
     head = head->get_next();
   }
   head = newHead;

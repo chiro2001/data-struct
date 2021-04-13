@@ -1,4 +1,4 @@
-// Last modified at 2021-04-09 by Chiro
+// Last modified at 2021-04-13 by Chiro
 
 #ifndef CHILIB_CHISTRING_HPP
 #define CHILIB_CHISTRING_HPP
@@ -150,7 +150,7 @@ public:
   void range_check(size_t pos) const {
     if (pos >= this->size()) {
       char buf[512];
-      sprintf(buf, "vector::range_check: pos (which is %d) >= this->size() (which is %d)", pos, this->size());
+      sprintf(buf, "string::range_check: pos (which is %llu) >= this->size() (which is %llu)", pos, this->size());
       throw std::out_of_range(buf);
     }
   }

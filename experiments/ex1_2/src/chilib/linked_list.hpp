@@ -35,7 +35,7 @@ public:
 
   ~linked_list() = default;
 
-  auto& get_next() { return next; }
+  auto &get_next() { return next; }
 
   T &get_data() { return data; }
 
@@ -90,7 +90,7 @@ public:
   /*!
    * 连接一个节点到this节点后面
    * @param d 所要添加的节点数据
-   * @return 节点对应指针
+   * @return 添加的节点
    * @note 这个传入的节点之后的数据被释放
    */
   auto link(T &d) {
@@ -135,6 +135,16 @@ public:
     tail->next = this->next;
     this->next = p;
     return p;
+  }
+
+  /*!
+   * 删除下一个节点
+   */
+  bool erase_next() {
+    if (this->next == nullptr) return false;
+    auto tmp = this->next->next;
+    this->next = tmp;
+    return true;
   }
 
   /*!
@@ -211,7 +221,7 @@ public:
 
 /*!
  * 得到开始迭代器
- * @note 由于没法指向自己，所以只能指向下一个。使用的时候空出头结点
+ * @note 由于没法指向自己，所以只能指向下一个。使用的时候空出头结点，不会获取到头结点的迭代器
  * @return 迭代器
  */
   iterator begin() { return iterator(this->next); }
@@ -221,6 +231,27 @@ public:
  * @return 迭代器
  */
   iterator end() { return iterator(this->get_tail()->next); }
+
+/*!
+ * 在本节点之后插入元素，本节点之后的内容保留
+ * @param d 元素
+ * @param p 节点
+ */
+  void insert(T &d) {
+    auto p = linked_list::make(d);
+    this->insert(p);
+  }
+
+  void insert(std::shared_ptr<linked_list<T>> &p) {
+    if (p == nullptr) return;
+    if (this->next == nullptr) {
+      this->link(p);
+      return;
+    }
+    auto tmp = this->next;
+    this->next = p;
+    this->next->next = tmp;
+  }
 
 /*!
  * 向尾部添加元素
@@ -276,6 +307,10 @@ public:
     pre->next = nullptr;
   }
 
+  T &operator[](size_t pos) {
+    return this->at(pos);
+  }
+
   T &at(size_t pos) {
     this->range_check(pos);
     auto p = this->step(pos);
@@ -283,9 +318,14 @@ public:
   }
 
   iterator insert(const iterator &it, T &d) {
-    auto n = (*it)->get_next();
-    auto p = (*it)->link(d);
-    p->get_next() = n;
+    (*it)->insert(d);
+  }
+
+  template <typename F>
+  void apply(F const &f) {
+    for (auto &p : *this) {
+      f(p);
+    }
   }
 };
 
