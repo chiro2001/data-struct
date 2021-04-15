@@ -196,17 +196,18 @@ int main() {
       if (use_graphviz) {
         plot(root, i, size, "invert_tree");
       }
-
-//      puts("$$$$$$$$\n\n");
-//      bt::traversal_bfs(root, [](std::shared_ptr<bt> &tr, bool &end_all) -> bool {
-//                          if (tr->get_data() == -1) return true;
-//                          printf("  visit: %d @ %d\n", tr->get_data(), tr->height);
-//                          return true;
-//                        },
-//                        [](std::shared_ptr<bt> &tr, int height, bool &end_all) -> bool {
-//                          printf("height now: %d\n", height);
-//                          return true;
-//                        });
+#if 0
+      puts("$$$$$$$$\n\n");
+      bt::traversal_bfs(root, [](std::shared_ptr<bt> &tr, bool &end_all) -> bool {
+                          if (tr->get_data() == -1) return true;
+                          printf("  visit: %d @ %d\n", tr->get_data(), tr->height);
+                          return true;
+                        },
+                        [](std::shared_ptr<bt> &tr, int height, bool &end_all) -> bool {
+                          printf("height now: %d\n", height);
+                          return true;
+                        });
+#endif
       // 释放内存（其实是自动的）
       root = nullptr;
       i++;
