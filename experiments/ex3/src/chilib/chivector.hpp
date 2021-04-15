@@ -94,7 +94,7 @@ private:
   void range_check(size_t pos) {
     if (pos >= this->size()) {
       char buf[512];
-      sprintf(buf, "vector::range_check: pos (which is %d) >= this->size() (which is %d)", pos, this->size());
+      sprintf_s(buf, "vector::range_check: pos (which is %zd) >= this->size() (which is %zd)", pos, this->size());
       throw std::out_of_range(buf);
     }
   }

@@ -9,7 +9,13 @@ using bt = chilib::btree<int>;
 
 // 创建 dot 可视化文件，感兴趣的同学可以学习
 void createDotFile(const char *filename, std::shared_ptr<bt> &root, int MaxSize) {
-  FILE *fp = fopen(filename, "w");    // 文件指针
+  int err = 0;
+  FILE *fp = nullptr;
+  err = fopen_s(&fp, filename, "w");    // 文件指针
+  if (err || !fp) {
+    std::cerr << "无法打开文件 " << filename << " !";
+    exit(1);
+  }
   if (fp == nullptr) {   // 为NULL则返回
     printf("File cannot open!");
     exit(0);
@@ -21,16 +27,16 @@ void createDotFile(const char *filename, std::shared_ptr<bt> &root, int MaxSize)
     traversal_bfs(root,
                   [&fp](std::shared_ptr<bt> &tr, bool &end_all) -> bool {
                     if (tr->get_data() == -1) return false;
-                    fprintf(fp, "%d [shape=circle, label=\"%d\"];\n", tr.get(), tr->get_data());
+                    fprintf(fp, "N%p [shape=circle, label=\"%d\"];\n", tr.get(), tr->get_data());
 
                     auto parser = [&fp, &tr](std::shared_ptr<bt> &t) {
                       if (t == nullptr) return;
                       if (t->get_data() != -1) {
-                        fprintf(fp, "%d->%d;\n", tr.get(), t.get());
+                        fprintf(fp, "N%p->N%p;\n", tr.get(), t.get());
                         return;
                       }
-                      fprintf(fp, "%d [shape=circle, label=\"#\"];\n", t.get());
-                      fprintf(fp, "%d->%d;\n", tr.get(), t.get());
+                      fprintf(fp, "N%p [shape=circle, label=\"#\"];\n", t.get());
+                      fprintf(fp, "N%p->N%p;\n", tr.get(), t.get());
                     };
                     parser(tr->get_left());
                     parser(tr->get_right());
@@ -38,7 +44,7 @@ void createDotFile(const char *filename, std::shared_ptr<bt> &root, int MaxSize)
                   },
                   [](std::shared_ptr<bt> &tr, int height, bool &end_all) -> bool { return true; }
     );
-  else fprintf(fp, "%d [shape=circle, label=\"#\"];\n");
+  else fprintf(fp, "NULL_NODE [shape=circle, label=\"#\"];\n");
   fprintf(fp, "}\n"); // 结尾
   fclose(fp); // 关闭IO
 }
@@ -46,9 +52,9 @@ void createDotFile(const char *filename, std::shared_ptr<bt> &root, int MaxSize)
 // 绘制二叉树图片,调用 createDotFile 并使用 system 执行命令
 void plot(std::shared_ptr<bt> &tree_root, int i, int size, const char *name) {
   char tree_filename[50], paint_tree[100];
-  sprintf(tree_filename, "./%s_%d.dot", name, i);
+  sprintf_s(tree_filename, "./%s_%d.dot", name, i);
   createDotFile(tree_filename, tree_root, size);
-  sprintf(paint_tree, "dot -Tpng %s -o ./%s_%d.png", tree_filename, name, i);
+  sprintf_s(paint_tree, "dot -Tpng %s -o ./%s_%d.png", tree_filename, name, i);
   // puts(paint_tree);
   system(paint_tree);
 }
@@ -64,9 +70,11 @@ int main() {
    * ||                   End Configuration                       ||
    * ===============================================================
    */
-  FILE *fp = fopen("./test.txt", "r");
-  if (!fp) {
-    perror("打开文件时发生错误");
+  int err;
+  FILE *fp = nullptr;
+  err = fopen_s(&fp, "./test.txt", "r");
+  if (!fp || err) {
+    std::cerr << "打开文件时发生错误! ";
     return -1;
   } else {
     int i = 0;

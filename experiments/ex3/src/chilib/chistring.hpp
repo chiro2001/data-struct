@@ -1,4 +1,4 @@
-// Last modified at 2021-04-13 by Chiro
+// Last modified at 2021-04-16 by Chiro
 
 #ifndef CHILIB_CHISTRING_HPP
 #define CHILIB_CHISTRING_HPP
@@ -26,7 +26,7 @@ private:
       } else {
         this->msize = strlen(str);
         this->mdata = new char[this->msize + 1];
-        strcpy(this->mdata, str);
+        strcpy_s(this->mdata, this->msize + 1, str);
       }
     } else {
       if (str == nullptr) {
@@ -150,7 +150,7 @@ public:
   void range_check(size_t pos) const {
     if (pos >= this->size()) {
       char buf[512];
-      sprintf(buf, "string::range_check: pos (which is %llu) >= this->size() (which is %llu)", pos, this->size());
+      sprintf_s(buf, "string::range_check: pos (which is %llu) >= this->size() (which is %llu)", pos, this->size());
       throw std::out_of_range(buf);
     }
   }
