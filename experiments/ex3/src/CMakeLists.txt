@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(student_linked_list VERSION 0.2)
+project(btree VERSION 0.2)
 
 #include(CTest)
 enable_testing()
@@ -17,7 +17,7 @@ file(GLOB_RECURSE source_files
         "${PROJECT_SOURCE_DIR}/chilib/*.hpp")
 message(STATUS "Source files: ${source_files}")
 
-add_executable(main ${PROJECT_SOURCE_DIR}/gradeImport.cpp ${source_files})
+add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp ${source_files})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

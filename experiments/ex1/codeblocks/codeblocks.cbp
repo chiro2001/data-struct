@@ -32,9 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="../src/chistring.hpp" />
+		<Unit filename="../src/chilib/chistring.hpp" />
+		<Unit filename="../src/chilib/iterator_base.hpp" />
+		<Unit filename="../src/chilib/linked_list.hpp" />
 		<Unit filename="../src/gradeImport.cpp" />
-		<Unit filename="../src/linked_list.hpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

@@ -1,8 +1,9 @@
 #include <iostream>
 #include <memory>
+//#include <fstream>
 
-#include "linked_list.hpp"
-#include "chistring.hpp"
+#include "chilib/linked_list.hpp"
+#include "chilib/chistring.hpp"
 
 // 调试输出
 #define PINT(x) printf("Line %d:\t"#x" = %d\n", __LINE__, x)
@@ -11,14 +12,16 @@
 using namespace chilib;
 using std::ios;
 // 声明：本程序没有使用 std::string
-// using std::string;
+// NOT using std::string;
 
 class StudentLinkedListNode {
 public:
-  chistring stuId;
+  chilib::string stuId;
   int grade{};
 
-  StudentLinkedListNode(const chistring &stuId_, int grade_) : stuId(stuId_), grade(grade_) {};
+  StudentLinkedListNode() = default;
+
+  StudentLinkedListNode(const chilib::string &stuId_, int grade_) : stuId(stuId_), grade(grade_) {};
 
   // 重载一下 << 让这个结构能直接输出
   friend std::ostream &operator<<(std::ostream &out, const StudentLinkedListNode &stu) {
@@ -35,11 +38,11 @@ using CrossLink = std::pair<int, int>;
 namespace ex {
 class Base : public std::exception {
 public:
-  chistring message;
+  chilib::string message;
 
   Base() = default;
 
-  explicit Base(const chistring &message_) : message(message_) {}
+  explicit Base(const chilib::string &message_) : message(message_) {}
 
   const char *what() {
     std::cerr << "Error: " << typeid(this).name() << std::endl;
@@ -52,7 +55,7 @@ class ReadFileData : public Base {
 public:
   ReadFileData() = default;
 
-  explicit ReadFileData(const chistring &message_) : Base(message_) {}
+  explicit ReadFileData(const chilib::string &message_) : Base(message_) {}
 };
 }
 
@@ -78,16 +81,16 @@ size_t getFileLine(FILE *fp, char *dst, size_t offset) {
 // @prog    : 使用头插法读取文件数据到一个链表
 // @rets    : 通过引用返回两个链表头指针和交叉节点，直接返回读取文件的offset
 // @notice  : 读取完需要的数据或者EOF就表示文件结束
-long readFileData(const chistring &filename, StudentList &class1, StudentList &class2, CrossLink &cross,
+long readFileData(const chilib::string &filename, StudentList &class1, StudentList &class2, CrossLink &cross,
                   size_t offset = 0) {
-#ifdef USING_STRING
+#ifdef USE_STREAM
   int length1 = 0, length2 = 0;
   // 尝试打开文件
-  std::ifstream fileData(filename);
+  std::ifstream fileData(filename.c_str());
   if (!fileData) throw ex::ReadFileData();
   fileData.seekg(offset, std::ios::beg);
   // 读取数据
-  string line;
+  chilib::string line;
   static std::stringstream ss;
   class1 = class2 = nullptr;
   // 读取第一行
@@ -97,7 +100,7 @@ long readFileData(const chistring &filename, StudentList &class1, StudentList &c
   ss << line;
   ss >> length1 >> length2;
   // 解析一行数据
-  auto parseLine = [](const string &line) -> StudentList {
+  auto parseLine = [](const chilib::string &line) -> StudentList {
 //    std::cout << line.length() << std::endl;
     // 读取到空行
     if (line.length() == 0)
@@ -106,7 +109,7 @@ long readFileData(const chistring &filename, StudentList &class1, StudentList &c
     size_t pos = line.find(' ');
     if (!(0 < pos && pos < line.length())) throw ex::ReadFileData();
     // 用 stringstream 转到 int
-    string stuId = line.substr(0, pos);
+    chilib::string stuId = line.substr(0, pos);
     ss.clear();
     ss << line.substr(pos + 1, line.length());
     int grade = 0;
@@ -116,7 +119,7 @@ long readFileData(const chistring &filename, StudentList &class1, StudentList &c
   };
   // 读取数据到classx
   auto readClassData = [parseLine](std::ifstream &file, StudentList &head, int length) {
-    string line;
+    chilib::string line;
     for (int i = 0; i < length; i++) {
       std::getline(file, line);
       auto p = parseLine(line);
@@ -149,16 +152,17 @@ long readFileData(const chistring &filename, StudentList &class1, StudentList &c
   offset = getFileLine(fp, buf, offset);
   if (sscanf(buf, "%d%d", &length1, &length2) <= 0) return -1;
   class1 = class2 = nullptr;
+  class1 = linked_list<StudentLinkedListNode>::make_head();
+  class2 = linked_list<StudentLinkedListNode>::make_head();
   auto readClassData = [&offset](StudentList &head, int length, FILE *fp) {
     char buf[512], stuId[128];
     int grade;
     for (int i = 0; i < length; i++) {
       offset = getFileLine(fp, buf, offset);
       sscanf(buf, "%s%d", stuId, &grade);
-      auto node = StudentLinkedListNode(chistring(stuId), grade);
-      auto p = linked_list_make<StudentLinkedListNode>(node);
-      p->link(head);
-      head = p;
+      chilib::string stuIdString = chilib::string(stuId);
+      auto node = StudentLinkedListNode(stuIdString, grade);
+      head->insert(node);
     }
   };
   readClassData(class1, length1, fp);
@@ -175,52 +179,59 @@ long readFileData(const chistring &filename, StudentList &class1, StudentList &c
 // @notice  : 相交方法是将b中的前一结点指向a中的首个相交结点
 //            使用了智能指针使得未被引用的数据自动删除
 void createCrossLink(StudentList &head1, StudentList &head2, CrossLink &cross) {
-//  auto p1 = head1->step(cross.first - 2), p2 = head2->step(cross.second - 2);
-  auto p1 = head1, p2 = head2;
-  int a = cross.first - 1, b = cross.second - 1;
-  while (a > 0 && p1 != nullptr) {
-    p1 = p1->next;
-    a--;
-  }
-  while (b > 0 && p2 != nullptr) {
-    p2 = p2->next;
-    b--;
-  }
   // shared_ptr不能指向自己，特殊处理0
   if (cross.first == 0) {
-    p2->next = p1;
-//    std::cout << "###### Create node at " << p1->data << std::endl;
+    auto pp2 = head2->step(cross.second - 1);
+    pp2->link(head1->get_next());
+//    std::cout << "###### Create node at " << head1->get_next()->get_data() << std::endl;
     return;
   }
-  if (p1 == nullptr || p2 == nullptr || p1->next == nullptr || p2->next == nullptr) return;
-//  std::cout << "###### Create node at " << p1->next->data << std::endl;
-  p2->next = p1->next;
+  auto p1 = head1->step(cross.first - 1), p2 = head2->step(cross.second - 1);
+  if (p1 == nullptr || p2 == nullptr || p1->get_next() == nullptr || p2->get_next() == nullptr) return;
+//  std::cout << "###### Create node at " << p1->get_next()->get_data() << std::endl;
+  p2->link(p1->get_next());
   // 在这之后未被引用的数据自动删除
 }
 
 // @prog    : 找到相交的第一个结点
 // @rets    : 返回找到的交点
+// @note    : 输入的链表不能有环
 StudentList findCrossBeginNode(StudentList &head1, StudentList &head2) {
+  // O(n^2)
+//  auto p1 = head1->get_next(), p2 = head2->get_next();
+//  while (p1 != nullptr) {
+//    p2 = head2->get_next();
+//    while (p2 != nullptr) {
+//      if (p1 == p2) {
+//        return p1;
+//      }
+//      p2 = p2->get_next();
+//    }
+//    p1 = p1->get_next();
+//  }
+//  return nullptr;
+  // 新算法：O(n)
+  size_t len1 = head1->length(), len2 = head2->length();
   auto p1 = head1, p2 = head2;
-  while (p1 != nullptr) {
-    p2 = head2;
-    while (p2 != nullptr) {
-      if (p1 == p2) {
-        return p1;
-      }
-      p2 = p2->next;
-    }
-    p1 = p1->next;
+  if (len1 == 0 || len2 == 0) return nullptr;
+  // 调整到短的那一个
+  if (len1 < len2) {
+    p2 = p2->step(len2 - len1 - 1);
+  } else if (len1 > len2) {
+    p1 = p1->step(len1 - len2 - 1);
   }
-  return nullptr;
+  while (p1 != p2) {
+    if (p1 == nullptr || p2 == nullptr) return nullptr;
+    p1 = p1->get_next();
+    p2 = p2->get_next();
+  }
+  return p1;
 }
 
 // @prog    : 输出该表的成绩情况
 void outputStudentLinkedList(StudentList &head) {
-  auto p = head;
-  while (p != nullptr) {
-    std::cout << p->data << (p->next == nullptr ? "\n" : "->");
-    p = p->next;
+  for (auto d : *head) {
+    std::cout << d.get_data() << ((d.get_next() == nullptr) ? "\n" : "->");
   }
 }
 
@@ -229,20 +240,21 @@ void outputStudentLinkedList(StudentList &head) {
 void reverseLinkedList(StudentList &head) {
   // 再反插一次吧...之前的方法会出现循环引用
   // 由于会自动释放内存，所以内存占用还是一样的
-  auto newHead = linked_list_make(head->data);
-  head = head->next;
+  auto newHead = linked_list<StudentLinkedListNode>::make_head();
+  if (head->get_next() == nullptr) {
+    return;
+  }
+  head = head->get_next();
   while (head != nullptr) {
-    auto newP = linked_list_make(head->data);
-    newP->link(newHead);
-    newHead = newP;
-    head = head->next;
+    newHead->insert(head->get_data());
+    head = head->get_next();
   }
   head = newHead;
 }
 
 // @prog    : 主函数
 int main() {
-  chistring filename("./gradeImport.in");
+  chilib::string filename("./gradeImport.in");
   StudentList class1 = nullptr, class2 = nullptr;
   CrossLink cross;
   long offset = 0;
@@ -263,16 +275,17 @@ int main() {
     std::cout << "* part2:" << std::endl << "class1:" << std::endl;
     outputStudentLinkedList(class1);
     std::cout << "class2:" << std::endl;
-    outputStudentLinkedList(class1);
+    outputStudentLinkedList(class2);
     createCrossLink(class1, class2, cross);
     auto node = findCrossBeginNode(class1, class2);
     // 有可能没有交点
     if (node != nullptr)
-      std::cout << "* part3:" << std::endl << node->data << std::endl;
+      std::cout << "* part3:" << std::endl << node->get_data() << std::endl;
     offset++;
     // 销毁数据
     // 空间因为智能指针的计数被降到0而自动释放
     class1 = class2 = nullptr;
+    std::cout << std::endl;
   }
 //  PINT(offset);
   return 0;

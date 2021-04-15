@@ -13,3 +13,24 @@
 1617345624 d:\programs\data-struct\ex1\src\chistring.hpp
 	<cstring>
 
+1618301272 source:d:\programs\data-struct\experiments\ex1_2\src\gradeimport.cpp
+	<iostream>
+	<memory>
+	"chilib/linked_list.hpp"
+	"chilib/chistring.hpp"
+
+1618230192 d:\programs\data-struct\experiments\ex1_2\src\chilib\linked_list.hpp
+	<memory>
+	<stdexcept>
+	<initializer_list>
+	"iterator_base.hpp"
+	"chistring.hpp"
+
+1617940286 d:\programs\data-struct\experiments\ex1_2\src\chilib\iterator_base.hpp
+	<memory>
+
+1618301369 d:\programs\data-struct\experiments\ex1_2\src\chilib\chistring.hpp
+	<cstring>
+	<sstream>
+	<memory>
+

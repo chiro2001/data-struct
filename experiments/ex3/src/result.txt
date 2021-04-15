@@ -1,0 +1,35 @@
+Case 0, data: #, nodes number: 1
+Answer for task 1 is:
+preOrderTraverse is:
+inOrderTraverse is:
+postOrderTraverse is:
+Answer for task 2 is : 0
+Answer for task 3 is : 0
+inOrderTraverse for task 4 is:
+
+Case 1, data: 9 8 7 6 # 5 # 4 # # # # 3 #, nodes number: 14
+Answer for task 1 is:
+preOrderTraverse is:9 8 6 4 7 5 3
+inOrderTraverse is:4 6 8 9 5 3 7
+postOrderTraverse is:4 6 8 3 5 7 9
+Answer for task 2 is : 27
+Answer for task 3 is : 4
+inOrderTraverse for task 4 is:7 3 5 9 8 6 4
+
+Case 2, data: 9 8 # # 7 # # # # 6 # # # # # # # # # # 5, nodes number: 21
+Answer for task 1 is:
+preOrderTraverse is:9 8 7 6 5
+inOrderTraverse is:8 6 5 7 9
+postOrderTraverse is:5 6 7 8 9
+Answer for task 2 is : 35
+Answer for task 3 is : 0
+inOrderTraverse for task 4 is:9 7 5 6 8
+
+Case 3, data: 9 8 # 7 # # # # 6 # # # # # # # # # 5, nodes number: 19
+Answer for task 1 is:
+preOrderTraverse is:9 8 7 6 5
+inOrderTraverse is:7 6 5 8 9
+postOrderTraverse is:5 6 7 8 9
+Answer for task 2 is : 35
+Answer for task 3 is : 0
+inOrderTraverse for task 4 is:9 8 5 6 7
