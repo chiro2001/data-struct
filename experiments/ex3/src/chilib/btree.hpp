@@ -13,7 +13,6 @@
 
 namespace chilib {
 using std::shared_ptr;
-using std::weak_ptr;
 
 template<typename T>
 class btree {
@@ -48,7 +47,6 @@ public:
   // 层数
   int height = -1;
   shared_ptr<btree> child_left = nullptr, child_right = nullptr;
-  weak_ptr<btree> parent;
 
   T &get_data() { return data; }
 
@@ -102,10 +100,11 @@ public:
   traversal_bfs(shared_ptr<btree> &tree, F1 const &on_item, F2 const &on_layer, bool includes_null = false) {
     if (tree == nullptr) return;
     vector<shared_ptr<btree> *> q;
-//    std::cout << "got tree: " << *tree << std::endl;
-    shared_ptr<btree> *treep = &tree;
-    q.emplace_back(treep);
     int height = 0;
+    tree->height = height;
+//    std::cout << "got tree: " << *tree << std::endl;
+    shared_ptr<btree> *tree_temp = &tree;
+    q.emplace_back(tree_temp);
     bool new_layer = false;
     bool end_all = false;
     while (!q.empty()) {
@@ -121,7 +120,7 @@ public:
       if (end_all) return;
 //      std::cout << "\ttop now: " << **top << std::endl;
       if (new_layer) {
-        if (!on_layer(*top, end_all)) {
+        if (!on_layer(*top, height + 1, end_all)) {
           if (end_all) return;
           continue;
         }
@@ -136,10 +135,12 @@ public:
       if ((*top)->height > height) height = (*top)->height;
       if ((*top)->get_left() != nullptr || includes_null) {
         shared_ptr<btree> *tmp = &(*top)->get_left();
+        if (!includes_null) (*tmp)->height = height + 1;
         q.emplace_back(tmp);
       }
       if ((*top)->get_right() != nullptr || includes_null) {
         shared_ptr<btree> *tmp = &(*top)->get_right();
+        if (!includes_null) (*tmp)->height = height + 1;
         q.emplace_back(tmp);
       }
       q.pop_front();

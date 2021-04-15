@@ -1,0 +1,17 @@
+digraph G {
+124 [shape=circle, label="1"];
+124->126;
+_n2 [shape=circle, label="#", style=invis];
+124->_n2 [style=invis, weight=10];
+126 [shape=circle, label="2"];
+126->128;
+_n4 [shape=circle, label="#", style=invis];
+126->_n4 [style=invis, weight=10];
+126->129;
+128 [shape=circle, label="3"];
+_n6 [shape=circle, label="#", style=invis];
+128->_n6 [style=invis, weight=10];
+129 [shape=circle, label="4"];
+_n8 [shape=circle, label="#", style=invis];
+129->_n8 [style=invis, weight=10];
+}
