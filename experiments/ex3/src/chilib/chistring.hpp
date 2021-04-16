@@ -16,7 +16,7 @@ private:
   size_t msize = 0;
   static const size_t buf_size = 512;
 
-  // 构造重用部分
+  // 构造重用部分，从字符串创建自身数据
   inline void create_from_str(const char *str, size_t size = 0) {
     if (size == 0) {
       if (str == nullptr) {
@@ -43,7 +43,7 @@ private:
 
 public:
 
-  // 默认构造函数
+  // 默认构造函数，允许从 const char * 到 string 的默认转换
   string(const char *str, size_t size = 0) { // NOLINT(google-explicit-constructor)
     this->create_from_str(str, size);
   }
@@ -114,7 +114,7 @@ public:
     return this->msize;
   }
 
-  // 返回 C 风格字符串指针
+  // 返回 C 风格字符串指针，谨慎使用
   const char *c_str() const {
     return (const char *) this->mdata;
   }

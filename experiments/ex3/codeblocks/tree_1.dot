@@ -1,0 +1,23 @@
+digraph G {
+N0000000000f07e70 [shape=circle, label="9"];
+N0000000000f07e70->N00000000026c3a10;
+N0000000000f07e70->N00000000026c3a60;
+N00000000026c3a10 [shape=circle, label="8"];
+N00000000026c3a10->N00000000026c3ab0;
+N00000000026c3b00 [style=invis, shape=circle, label="#"];
+N00000000026c3a10->N00000000026c3b00 [style=invis, weight=10];
+N00000000026c3a60 [shape=circle, label="7"];
+N00000000026c3a60->N00000000026c3b50;
+N00000000026c3ba0 [style=invis, shape=circle, label="#"];
+N00000000026c3a60->N00000000026c3ba0 [style=invis, weight=10];
+N00000000026c3ab0 [shape=circle, label="6"];
+N00000000026c3ab0->N00000000026c3bf0;
+N00000000026c3c40 [style=invis, shape=circle, label="#"];
+N00000000026c3ab0->N00000000026c3c40 [style=invis, weight=10];
+N00000000026c3b50 [shape=circle, label="5"];
+N00000000026c3d30 [style=invis, shape=circle, label="#"];
+N00000000026c3b50->N00000000026c3d30 [style=invis, weight=10];
+N00000000026c3b50->N00000000026c3d80;
+N00000000026c3bf0 [shape=circle, label="4"];
+N00000000026c3d80 [shape=circle, label="3"];
+}

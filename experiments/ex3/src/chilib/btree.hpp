@@ -16,6 +16,32 @@ using std::shared_ptr;
 
 template<typename T>
 class btree {
+private:
+  T data{};
+  // 是否线索化
+  bool is_in_threading = false;
+  // 是否有左右孩子，在线索化的时候使用
+  bool tag_left = false, tag_right = false;
+  // 层数
+  int height = -1;
+  // 左右孩子
+  shared_ptr<btree> child_left = nullptr, child_right = nullptr;
+
+  /*!
+   * 深度优先遍历（含栈）
+   * @tparam F bool(btree<T>&, vector<btree<T>>&)
+   * @param callback 回调函数
+   * @param stack 调用栈
+   */
+  template<typename F>
+  void traversal_dfs_(F const &callback, vector <btree<T>> &stack) {
+    stack.emplace_back(*this);
+    if (!callback(*this, stack)) return;
+    if (this->get_left() != nullptr) this->get_left()->traversal_dfs_(callback, stack);
+    if (this->get_right() != nullptr) this->get_right()->traversal_dfs_(callback, stack);
+    stack.pop_back();
+  }
+
 public:
   explicit btree(T val) : data(val) {}
 
@@ -39,26 +65,29 @@ public:
     return std::shared_ptr<btree>(p);
   }
 
-  T data{};
-  // 是否线索化
-  bool is_in_threading = false;
-  // 是否有左右孩子，在线索化的时候使用
-  bool tag_left = false, tag_right = false;
-  // 层数
-  int height = -1;
-  shared_ptr<btree> child_left = nullptr, child_right = nullptr;
-
   T &get_data() { return data; }
 
   shared_ptr<btree> &get_left() { return child_left; }
 
   shared_ptr<btree> &get_right() { return child_right; }
 
+  bool &get_is_threading() { return is_in_threading; }
+
+  bool &get_tag_left() { return tag_left; }
+
+  bool &get_tag_right() { return tag_right; }
+
+  int &get_height() { return height; }
+
   bool is_leaf() {
     return this->get_left() == nullptr && this->get_right() == nullptr;
   }
 
-  // 中序遍历本树，遍历到 callback 返回 false 为止
+  /*!
+   * 中序遍历本树，遍历到 callback 返回 false 为止
+   * @tparam F bool(btree<T>&)
+   * @param callback
+   */
   template<typename F>
   void traversal_inorder(F const &callback) {
     if (!is_in_threading) {
@@ -70,7 +99,11 @@ public:
     }
   }
 
-  // 前序遍历本树
+  /*!
+   * 前序遍历本树，遍历到 callback 返回 false 为止
+   * @tparam F bool(btree<T>&)
+   * @param callback
+   */
   template<typename F>
   void traversal_preorder(F const &callback) {
     if (!is_in_threading) {
@@ -82,7 +115,11 @@ public:
     }
   }
 
-  // 后序遍历本树
+  /*!
+   * 后序遍历本树，遍历到 callback 返回 false 为止
+   * @tparam F bool(btree<T>&)
+   * @param callback
+   */
   template<typename F>
   void traversal_postorder(F const &callback) {
     if (!is_in_threading) {
@@ -94,7 +131,15 @@ public:
     }
   }
 
-  // 广度优先遍历
+  /*!
+   * 广度优先遍历
+   * @tparam F1 bool(btree<T>&, bool*)
+   * @tparam F2 bool(btree<T>&, int&, bool*)
+   * @param tree 目标树
+   * @param on_item 每个元素的回调
+   * @param on_layer 每一层的回调
+   * @param includes_null=false 是否在元素回调中包含空节点
+   */
   template<typename F1, typename F2>
   static void
   traversal_bfs(shared_ptr<btree> &tree, F1 const &on_item, F2 const &on_layer, bool includes_null = false) {
@@ -102,25 +147,20 @@ public:
     vector<shared_ptr<btree> *> q;
     int height = 0;
     tree->height = height;
-//    std::cout << "got tree: " << *tree << std::endl;
     shared_ptr<btree> *tree_temp = &tree;
     q.emplace_back(tree_temp);
     bool new_layer = false;
     bool end_all = false;
     while (!q.empty()) {
-//      std::cout << "    tree now: " << *tree << std::endl;
       shared_ptr<btree> *top = q.front();
-//      if (*top != nullptr) std::cout << "got top: " << **top << std::endl;
-//      else std::cout << "got top: nullptr" << std::endl;
-      if (!on_item(*top, end_all)) {
+      if (!on_item(*top, &end_all)) {
         if (end_all) return;
         q.pop_front();
         continue;
       }
       if (end_all) return;
-//      std::cout << "\ttop now: " << **top << std::endl;
       if (new_layer) {
-        if (!on_layer(*top, height + 1, end_all)) {
+        if (!on_layer(*top, height + 1, &end_all)) {
           if (end_all) return;
           continue;
         }
@@ -131,18 +171,17 @@ public:
         q.pop_front();
         continue;
       }
-      shared_ptr<btree> left = (*top)->get_left(), right = (*top)->get_right();
+      shared_ptr<btree> &left = (*top)->get_left(), &right = (*top)->get_right();
       if ((*top)->height > height) height = (*top)->height;
-      if ((*top)->get_left() != nullptr || includes_null) {
-        shared_ptr<btree> *tmp = &(*top)->get_left();
-        if (!includes_null) (*tmp)->height = height + 1;
-        q.emplace_back(tmp);
-      }
-      if ((*top)->get_right() != nullptr || includes_null) {
-        shared_ptr<btree> *tmp = &(*top)->get_right();
-        if (!includes_null) (*tmp)->height = height + 1;
-        q.emplace_back(tmp);
-      }
+      auto push_if = [&q, &includes_null, &height](shared_ptr<btree> &child) {
+        if (child != nullptr || includes_null) {
+          shared_ptr<btree> *tmp = &child;
+          if (!includes_null) (*tmp)->height = height + 1;
+          q.emplace_back(tmp);
+        }
+      };
+      push_if(left);
+      push_if(right);
       q.pop_front();
       if (!q.empty()) {
         // 即将到下一层
@@ -153,16 +192,11 @@ public:
     }
   }
 
-  // 深度优先遍历
-  template<typename F>
-  void traversal_dfs_(F const &callback, vector<btree<T>> &stack) {
-    stack.emplace_back(*this);
-    if (!callback(*this, stack)) return;
-    if (this->get_left() != nullptr) this->get_left()->traversal_dfs_(callback, stack);
-    if (this->get_right() != nullptr) this->get_right()->traversal_dfs_(callback, stack);
-    stack.pop_back();
-  }
-
+  /*!
+   * 深度优先遍历（准备栈）
+   * @tparam F bool(btree<T>&, vector<btree<T>>&)
+   * @param callback 回调函数
+   */
   template<typename F>
   void traversal_dfs(F const &callback) {
     vector<btree<T>> stack;

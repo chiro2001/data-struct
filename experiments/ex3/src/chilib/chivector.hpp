@@ -19,10 +19,10 @@ template<typename T>
 class vector : public iterator_base {
 private:
   // 块链中每块大小
-  // 争取每一块放到 64b or 128b 内
+  // 争取每一块放到 64b or 128b 内，方便 cpu 移动
   const static size_t block_size = 80;
 
-  // 数据区
+  // 数据区块
   class block {
   private:
     void memory_set() {
@@ -57,12 +57,14 @@ private:
     }
   }
 
+  // 仅仅初始化内存，不增加元素
   void init_without_offset(size_t size) {
     head = linked_list<block>::make_head();
     create_blocks(size);
     cnt = head->get_next();
   }
 
+  // 初始化内存并且增加默认值元素
   void init(size_t size) {
     init_without_offset(size);
     // 移动尾指针会导致增加默认的元素
@@ -84,6 +86,7 @@ private:
 //    memcpy(&p->get_data(), data, size);
 //  }
 
+  // 由传入的initializer_list初始化数据，仍然有优化空间
   void list_init_copy(std::initializer_list<T> &li) {
     for (auto const &p : li) {
       T t = p;
@@ -91,6 +94,7 @@ private:
     }
   }
 
+  // 检查是否在范围内，不在范围内则抛出异常
   void range_check(size_t pos) {
     if (pos >= this->size()) {
       char buf[512];
@@ -99,6 +103,7 @@ private:
     }
   }
 
+  // 检查是否为空，为空则抛出异常
   void empty_check() {
     if (empty()) throw std::out_of_range("vector::empty_check: can not pop from empty container");
   }
@@ -118,14 +123,26 @@ public:
     list_init_copy(li);
   }
 
+  /*!
+   * 向容器末尾添加元素（实际上还是push）
+   * @param d 元素的引用
+   */
   void emplace_back(T &d) {
     push_back(d);
   }
 
+  /*!
+   * 向容器前端添加元素（实际上还是push）
+   * @param d 元素的引用
+   */
   void emplace_front(T &d) {
     push_front(d);
   }
 
+  /*!
+   * 向容器末尾添加元素
+   * @param d 元素的引用
+   */
   void push_back(T &d) {
     if (offset_end == block_size) {
       block blk;
@@ -136,6 +153,10 @@ public:
     cnt->get_data()[offset_end++] = d;
   }
 
+  /*!
+   * 向容器开头添加元素
+   * @param d 元素的引用
+   */
   void push_front(T &d) {
     if (offset_start == 0) {
       block blk;
@@ -146,6 +167,10 @@ public:
     head->get_next()->get_data()[--offset_start] = d;
   }
 
+  /*!
+   * 弹出并且返回容器末端元素
+   * @return 容器末端元素实体
+   */
   T pop_back() {
     empty_check();
     T d = cnt->get_data()[--offset_end];
@@ -159,16 +184,10 @@ public:
     return d;
   }
 
-  T &back() {
-    empty_check();
-    return (*this)[this->length() - 1];
-  }
-
-  T &front() {
-    empty_check();
-    return (*this)[0];
-  }
-
+  /*!
+   * 弹出并且返回容器前端元素
+   * @return 容器前端元素实体
+   */
   T pop_front() {
     empty_check();
     T d = head->get_next()->get_data()[offset_start++];
@@ -180,19 +199,62 @@ public:
     return d;
   }
 
+  /*!
+   * 获取末端元素引用
+   * @return 末端元素引用
+   */
+  T &back() {
+    empty_check();
+    return (*this)[this->length() - 1];
+  }
+
+  /*!
+   * 获取前端元素引用
+   * @return 前端元素引用
+   */
+  T &front() {
+    empty_check();
+    return (*this)[0];
+  }
+
+  /*!
+   * 得到容器大小
+   * @return 容器大小
+   */
   size_t length() {
     //          完整的块            开头部分可能不完整的块       结尾不满足一块的部分
     return (head->length() - 1) * block_size - offset_start + offset_end;
   }
 
+  /*!
+   * 判断容器是否为空
+   * @return 容器为空吗
+   */
   bool empty() {
     return this->length() == 0;
   }
 
+  /*!
+   * 获取容器大小
+   * @return 容器大小
+   */
   size_t size() {
     return this->length();
   }
 
+  /*!
+   * 获取容器实际占内存的字节大小
+   * @return 实际占内存大小
+   */
+  size_t size_memory() {
+    return head->length() * block_size;
+  }
+
+  /*!
+   * 按照位置获取元素
+   * @param pos 位置
+   * @return 元素的引用
+   */
   T &at(size_t pos) {
     this->range_check(pos);
     pos += offset_start;
@@ -203,11 +265,13 @@ public:
     return this->at(pos);
   }
 
+  /*!
+   * 迭代器类，是智能指针类型
+   */
   class iterator : public iterator_shared_ptr<linked_list<block>> {
   private:
     size_t offset = 0;
   public:
-//    size_t offset = 0;
     explicit iterator(linked_list_p<block>
                       &d) : iterator_shared_ptr<linked_list<block >>(d) {}
 
@@ -230,6 +294,7 @@ public:
     }
 
     bool operator==(const iterator &s) {
+      // 节点相同而且偏移相同才行
       return this->node == s.node && this->offset == s.offset;
     }
 
@@ -238,11 +303,19 @@ public:
     }
   };
 
+  /*!
+   * 获取起始迭代器
+   * @return 起始迭代器
+   */
   iterator begin() const {
     auto p = this->head->get_next();
     return iterator(p, this->offset_start);
   }
 
+  /*!
+   * 获取末尾迭代器
+   * @return 末尾迭代器
+   */
   iterator end() const {
     auto p = this->head->get_tail();
     if (this->offset_end != block_size) {
@@ -252,8 +325,6 @@ public:
       return iterator(p, 0);
     }
   }
-
-
 };
 } // namespace chilib
 

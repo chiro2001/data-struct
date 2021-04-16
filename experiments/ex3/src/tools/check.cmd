@@ -1,7 +1,7 @@
 @echo off
 
-cd ..
+cd ..\cmake-build-debug
 
-.\cmake-build-debug\main.exe > .\myres.txt
+.\main.exe > ..\myres.txt
 
-start .\tools\windiff .\result.txt .\myres.txt
+start ..\tools\windiff ..\result.txt ..\myres.txt

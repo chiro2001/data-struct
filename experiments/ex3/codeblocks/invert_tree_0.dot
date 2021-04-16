@@ -1,0 +1,3 @@
+digraph G {
+NULL_NODE [shape=circle, label="#"];
+}
