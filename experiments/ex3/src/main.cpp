@@ -134,9 +134,11 @@ int main() {
           // includes_null 表示在遇到空节点的时候是否继续运行，设置为 true 则回调函数可以得到空节点的指针
         }, true);
         // 删除多余的节点
-        root->traversal_preorder([](bt &tr) -> bool {
+        root->traversal(bt::preother, [](bt &tr) -> bool {
           if (tr.get_data() == -1) {
+            // if (tr.get_left() != nullptr) printf("\tdeleting %p\n", tr.get_left().get());
             tr.get_left() = nullptr;
+            // if (tr.get_right() != nullptr) printf("\tdeleting %p\n", tr.get_right().get());
             tr.get_right() = nullptr;
           }
           return true;
@@ -153,13 +155,13 @@ int main() {
       printf("preOrderTraverse is:");
       if (!tree_empty)
         // 按照传入一个函数的方式进行调用，解耦出遍历过程和处理过程
-        root->traversal_preorder(print_order);
+        root->traversal(bt::preother, print_order);
       printf("\ninOrderTraverse is:");
       if (!tree_empty)
-        root->traversal_inorder(print_order);
+        root->traversal(bt::inorder, print_order);
       printf("\npostOrderTraverse is:");
       if (!tree_empty)
-        root->traversal_postorder(print_order);
+        root->traversal(bt::postoder, print_order);
       puts("");
       /** 通过 graphviz 可视化，勿删，助教测试使用 */
       if (use_graphviz) {
@@ -168,7 +170,7 @@ int main() {
       /** 任务二 */
       int max_path_sum = 0;
       if (!tree_empty)
-        root->traversal_dfs([&max_path_sum](bt &tr, chilib::vector<bt> &stack) -> bool {
+        root->traversal_dfs(bt::preother, [&max_path_sum](bt &tr, chilib::vector<bt> &stack) -> bool {
           // 遇到叶子节点就向上计算经过的栈
           if (tr.is_leaf()) {
             int sum = 0;
@@ -181,7 +183,7 @@ int main() {
       /** 任务三 */
       int weight_sum = 0;
       if (!tree_empty)
-        root->traversal_preorder([&weight_sum](bt &tr) -> bool {
+        root->traversal(bt::preother, [&weight_sum](bt &tr) -> bool {
           if (tr.get_data() == -1) return true;
           if (tr.is_leaf()) return true;
           // 仅仅统计左子叶
@@ -193,7 +195,7 @@ int main() {
       /** 任务四 */
       // 交换，用前序遍历
       if (!tree_empty)
-        root->traversal_preorder([](bt &tr) -> bool {
+        root->traversal(bt::preother, [](bt &tr) -> bool {
           auto tmp_left = tr.get_left(), tmp_right = tr.get_right();
           // 防止智能指针出现环
           tr.get_left() = nullptr;
@@ -204,7 +206,7 @@ int main() {
         });
       printf("inOrderTraverse for task 4 is:");
       if (!tree_empty)
-        root->traversal_inorder(print_order);
+        root->traversal(bt::inorder, print_order);
       printf("\n\n");
       /** 通过 graphviz 可视化，勿删，助教测试使用 */
       if (use_graphviz) {

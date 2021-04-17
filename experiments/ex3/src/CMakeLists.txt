@@ -4,6 +4,9 @@ project(btree VERSION 0.2)
 #include(CTest)
 enable_testing()
 
+#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+
 message(STATUS "${PROJECT_NAME} started building on ${CMAKE_SYSTEM_NAME}!")
 
 # Include

@@ -10,6 +10,7 @@
 #include <sstream>
 #include "chivector.hpp"
 #include <iostream>
+#include <typeinfo>
 
 namespace chilib {
 using std::shared_ptr;
@@ -26,21 +27,6 @@ private:
   int height = -1;
   // 左右孩子
   shared_ptr<btree> child_left = nullptr, child_right = nullptr;
-
-  /*!
-   * 深度优先遍历（含栈）
-   * @tparam F bool(btree<T>&, vector<btree<T>>&)
-   * @param callback 回调函数
-   * @param stack 调用栈
-   */
-  template<typename F>
-  void traversal_dfs_(F const &callback, vector <btree<T>> &stack) {
-    stack.emplace_back(*this);
-    if (!callback(*this, stack)) return;
-    if (this->get_left() != nullptr) this->get_left()->traversal_dfs_(callback, stack);
-    if (this->get_right() != nullptr) this->get_right()->traversal_dfs_(callback, stack);
-    stack.pop_back();
-  }
 
 public:
   explicit btree(T val) : data(val) {}
@@ -83,6 +69,40 @@ public:
     return this->get_left() == nullptr && this->get_right() == nullptr;
   }
 
+  /*!
+   *
+   */
+  enum traversal_type {
+    inorder, preother, postoder
+  };
+
+  /*!
+   * 按照指定顺序遍历树
+   * @tparam F
+   * @param method [preorder, inorder, postoder]
+   * @param callback bool(btree<T> &)
+   * @return
+   */
+  template<typename F>
+  constexpr void traversal(const traversal_type &method, F const &callback, vector <btree<T>> *stack = nullptr) {
+    if (stack != nullptr) stack->emplace_back(*this);
+    if (method == preother) {
+      if (!callback(*this)) return;
+      if (child_left != nullptr) child_left->traversal(method, callback);
+      if (child_right != nullptr) child_right->traversal(method, callback);
+    } else if (method == inorder) {
+      if (child_left != nullptr) child_left->traversal(method, callback);
+      if (!callback(*this)) return;
+      if (child_right != nullptr) child_right->traversal(method, callback);
+    } else if (method == postoder) {
+      if (child_left != nullptr) child_left->traversal(method, callback);
+      if (child_right != nullptr) child_right->traversal(method, callback);
+      if (!callback(*this)) return;
+    }
+    if (stack != nullptr) stack->pop_back();
+  }
+
+#if 0
   /*!
    * 中序遍历本树，遍历到 callback 返回 false 为止
    * @tparam F bool(btree<T>&)
@@ -130,6 +150,7 @@ public:
       if (!callback(*this)) return;
     }
   }
+#endif
 
   /*!
    * 广度优先遍历
@@ -142,7 +163,7 @@ public:
    */
   template<typename F1, typename F2>
   static void
-  traversal_bfs(shared_ptr<btree> &tree, F1 const &on_item, F2 const &on_layer, bool includes_null = false) {
+  traversal_bfs(shared_ptr<btree> &tree, F1 const &on_item, F2 const &on_layer, const bool includes_null = false) {
     if (tree == nullptr) return;
     vector<shared_ptr<btree> *> q;
     int height = 0;
@@ -198,10 +219,41 @@ public:
    * @param callback 回调函数
    */
   template<typename F>
-  void traversal_dfs(F const &callback) {
-    vector<btree<T>> stack;
-    traversal_dfs_(callback, stack);
+  constexpr void traversal_dfs(const traversal_type method, F const &callback) {
+    vector <btree<T>> stack;
+    // 利用闭包特性传递栈信息
+    auto wrapper = [&stack, &callback](btree<T> &tr) -> bool {
+      return callback(tr, stack);
+    };
+    traversal(method, wrapper, &stack);
   }
+
+#if 0
+  /*!
+   * 深度优先遍历（含栈）
+   * @tparam F bool(btree<T>&, vector<btree<T>>&)
+   * @param callback 回调函数
+   * @param stack 调用栈
+   */
+  template<typename F>
+  void traversal_dfs_inside(const traversal_type method, F const &callback, vector <btree<T>> &stack) {
+    stack.emplace_back(*this);
+    if (method == preother) {
+      if (!callback(*this, stack)) return;
+      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
+      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
+    } else if (method == inorder) {
+      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
+      if (!callback(*this, stack)) return;
+      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
+    } else if (method == postoder) {
+      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
+      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
+      if (!callback(*this, stack)) return;
+    }
+    stack.pop_back();
+  }
+#endif
 };
 
 }
