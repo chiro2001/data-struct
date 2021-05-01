@@ -179,6 +179,8 @@ public:
         // TODO: 减小复杂度
         cnt = head->get_tail_pre();
         cnt->get_next() = nullptr;
+        // FIX: pop_back 可能导致 offset_end 溢出。
+        offset_end = block_size;
       }
     }
     return d;

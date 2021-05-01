@@ -1,20 +1,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <queue>
-#include "chilib/chivector.hpp"
-#include "chilib/linked_list.hpp"
 #include "chilib/chistring.hpp"
+#include "chilib/chivector.hpp"
+#include "chilib/queue.hpp"
+#include <queue>
 
 // Constants
 // 地铁站名称最长7个中文字
-#define METRO_NAME_MAX 15
+const int METRO_NAME_MAX = 15;
 // 最大地铁长度
-#define METRO_LEN_MAX 0x3f3f3f3f
+const int METRO_LEN_MAX = 0x3f3f3f3f;
 // 最多地铁边数
-#define METRO_EDGES_MAX 5000
+const int METRO_EDGES_MAX = 5000;
 
 class linked_edges : chilib::iterator_base {
 public:
@@ -30,10 +28,6 @@ public:
     explicit edge_node(int to_, int weight_, int next_, int line_) : to(to_), weight(weight_), next(next_),
                                                                      line(line_) {}
 
-//    explicit edge_node(int to_, int weight_, int next_) : to(to_), weight(weight_), next(next_) {}
-//
-//    explicit edge_node(int to_, int weight_) : to(to_), weight(weight_) {}
-
     // 重载输出
     friend std::ostream &operator<<(std::ostream &out, const edge_node &node) {
       out << "node(line=" << node.line << ", to=" << node.to << ", weight=" << node.weight << ", next=" << node.next
@@ -44,10 +38,10 @@ public:
 
   size_t n;
   size_t node_size = 0;
-  chilib::vector<int> distance;
-  chilib::vector<bool> visit;
-  chilib::vector<edge_node> edges;
-  chilib::vector<int> heads;
+  std::shared_ptr<chilib::vector<int>> distance = nullptr;
+  std::shared_ptr<chilib::vector<bool>> visit = nullptr;
+  std::shared_ptr<chilib::vector<edge_node>> edges = nullptr;
+  std::shared_ptr<chilib::vector<int>> heads = nullptr;
   int cnt = 0;
   int m_from{};
 
@@ -58,19 +52,19 @@ public:
   }
 
   void data_init() {
-    distance = chilib::vector<int>(n);
-    visit = chilib::vector<bool>(n);
-    heads = chilib::vector<int>(n);
-    edges = chilib::vector<edge_node>(n);
+    distance = std::make_shared<chilib::vector<int>>(n);
+    visit = std::make_shared<chilib::vector<bool>>(n);
+    heads = std::make_shared<chilib::vector<int>>(n);
+    edges = std::make_shared<chilib::vector<edge_node>>(n);
   }
 
   explicit linked_edges(size_t size) : n(size) { data_init(); }
 
   void add_edge(int from, int to, int weight, int line) {
     cnt++;
-    edges[cnt] = edge_node(to, weight, heads[from], line);
+    (*edges)[cnt] = edge_node(to, weight, (*heads)[from], line);
 //    std::cout << "add_edge: from=" << from << ",\t" << edges[cnt] << std::endl;
-    heads[from] = cnt;
+    (*heads)[from] = cnt;
   }
 
   /*!
@@ -97,7 +91,7 @@ public:
    * @return 起始迭代器
    */
   iterator begin() {
-    return iterator(edges, heads[m_from]);
+    return iterator(*edges, (*heads)[m_from]);
   }
 
   /*!
@@ -105,7 +99,7 @@ public:
    * @return 末尾迭代器
    */
   iterator end() {
-    return iterator(edges, 0);
+    return iterator(*edges, 0);
   }
 };
 
@@ -190,7 +184,7 @@ void dfs(int from, chilib::vector<bool> &visited, linked_edges &edges) {
 bool is_map_connected(linked_edges &edges) {
   chilib::vector<bool> visited(edges.n + 1);
   int head_first = 0;
-  while (edges.heads[head_first] == 0) head_first++;
+  while ((*edges.heads)[head_first] == 0) head_first++;
 //  printf("head_first = %d\n", head_first);
   // BFS
   chilib::vector<int> queue;
@@ -261,100 +255,12 @@ int find_most_exchanged(linked_edges &edges, int &max_degree) {
   return id;
 }
 
-template<typename T>
-struct less {
-  // 伪函数
-  constexpr bool operator()(const T &x, const T &y) const { return x < y; }
-};
-
-template<typename T>
-struct greater {
-  // 伪函数
-  constexpr bool operator()(const T &x, const T &y) const { return x > y; }
-};
-
-template<typename T, typename Cmp = less<T>>
-class priority_queue_ {
-public:
-  chilib::linked_list_p<T> head = chilib::linked_list<T>::make_head();
-  Cmp cmp;
-
-//  explicit priority_queue(F &cmp) : compare(cmp) {}
-
-  void push(T d) {
-    if (head->get_next() == nullptr) {
-      head->insert(d);
-//      printf("insert first %d\n", d);
-    } else {
-      // 从小到大
-      if (cmp(d, head->get_next()->get_data()) || d == head->get_next()->get_data()) {
-        head->insert(d);
-//        printf("insert to first: %d\n", d);
-      } else {
-        for (auto it = head->begin(); it != head->end(); ++it) {
-          auto &p = *it;
-//          printf("p: %d\n", p.get_data());
-          if (p.get_next() == nullptr) {
-//            if (cmp(d, p.get_data()) || d == p.get_data()) {
-//              p.link(d);
-//              ++it;
-//            } else {
-//              printf("err: %d\n", d);
-//            }
-            p.link(d);
-//            ++it;
-            break;
-          } else {
-            if ((cmp(p.get_data(), d) || p.get_data() == d) &&
-                (cmp(d, p.get_next()->get_data()) || d == p.get_next()->get_data())) {
-//              printf("insert %d between %d and %d\n", d, p.get_data(), p.get_next()->get_data());
-              p.insert(d);
-              break;
-            } else {
-              if (p.get_next()->get_next() == nullptr) {
-                if (cmp(p.get_next()->get_data(), d) || p.get_next()->get_data() == d) {
-                  p.get_next()->insert(d);
-//                printf("insert to last %d\n", d);
-                  break;
-                } else {
-                  p.insert(d);
-                  break;
-//                  ++it;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // 检查是否为空，为空则抛出异常
-  void empty_check() {
-    if (empty()) throw std::out_of_range("priority_queue::empty_check: can not pop from empty container");
-  }
-
-  bool empty() {
-    return head->get_next() == nullptr;
-  }
-
-  T top() {
-    empty_check();
-    return head->get_next()->get_data();
-  }
-
-  void pop() {
-    empty_check();
-    head->erase_next();
-  }
-};
-
 void dijkstra(int start, linked_edges &edges, chilib::vector<int> &distance) {
   chilib::vector<bool> visited(edges.node_size + 1);
   distance = chilib::vector<int>(edges.node_size + 1);
   for (auto &d : distance) d = METRO_LEN_MAX;
   std::priority_queue<node_order> q;
-//  priority_queue<node_order> q;
+//  chilib::priority_queue<node_order> q;
   distance[start] = 0;
   q.push(node_order(start, 0));
   while (!q.empty()) {
@@ -377,6 +283,7 @@ void dijkstra(int start, linked_edges &edges, chilib::vector<int> &distance) {
 }
 
 void compute_ecc(linked_edges &edges, int &d, int &r) {
+  d = 0, r = METRO_LEN_MAX;
   for (int i = 1; i <= edges.node_size; i++) {
     int ecc = 0;
     chilib::vector<int> distance;
@@ -397,7 +304,7 @@ void dijkstra_path(int start, linked_edges &edges,
   path = chilib::vector<int>(edges.node_size + 1);
   for (auto &d : distance) d = METRO_LEN_MAX;
   std::priority_queue<node_order> q;
-//  priority_queue<node_order> q;
+//  chilib::priority_queue<node_order> q;
   distance[start] = 0;
   q.push(node_order(start, 0));
   while (!q.empty()) {
@@ -460,7 +367,7 @@ int main() {
 
 //  chilib::vector<bool> visited(edges.n + 1);
 //  dfs(1, visited, edges);
-  printf("这个图是联通的吗? %s\n", is_map_connected(edges) ? "是" : "否");
+  printf("这个图%s联通的.\n", is_map_connected(edges) ? "是" : "否");
   int max_degree = 0;
   int most_exchanged = find_most_exchanged(edges, max_degree);
   printf("线路图中换乘线路最多的站点是%s, 共有 %d 条线路通过.\n", names[most_exchanged - 1].c_str(), max_degree);
@@ -477,7 +384,8 @@ int main() {
   printf("该线路图的直径是 %d, 半径是 %d.\n", d, r);
   int station1 = -1, station2 = -1;
   chilib::string station1_name = "大学城",
-          station2_name = "机场";
+//          station2_name = "机场";
+          station2_name = "深圳湾公园";
   for (int n = 1; n < names.size(); n++) {
     if (names[n] == station1_name) station1 = n;
     if (names[n] == station2_name) station2 = n;
