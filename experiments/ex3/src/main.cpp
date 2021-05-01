@@ -28,7 +28,7 @@ void createDotFile(const char *filename, std::shared_ptr<bt> &root, int MaxSize)
                auto parser = [&fp, &tr](std::shared_ptr<bt> &t) {
                  if (t == nullptr) return;
                  if (t->get_data() != -1) {
-                   fprintf(fp, "N%p->N%p;\n", tr.get(), t.get());
+                     fprintf(fp, "N%p->N%p;\n", tr.get(), t.get());
                    return;
                  }
                  fprintf(fp, "N%p [style=invis, shape=circle, label=\"#\"];\n", t.get());
