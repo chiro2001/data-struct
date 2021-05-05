@@ -32,7 +32,13 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="main.cpp" />
+		<Unit filename="../src/chilib/btree.hpp" />
+		<Unit filename="../src/chilib/chistring.hpp" />
+		<Unit filename="../src/chilib/chivector.hpp" />
+		<Unit filename="../src/chilib/iterator_base.hpp" />
+		<Unit filename="../src/chilib/linked_list.hpp" />
+		<Unit filename="../src/chilib/queue.hpp" />
+		<Unit filename="../src/metro.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

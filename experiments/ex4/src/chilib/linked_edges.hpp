@@ -18,16 +18,14 @@ public:
     int to = 0;
     int weight = INT32_MAX;
     int next = 0;
-    int line{};
 
     edge_node() = default;
 
-    explicit edge_node(int to_, int weight_, int next_, int line_) : to(to_), weight(weight_), next(next_),
-                                                                     line(line_) {}
+    explicit edge_node(int to_, int weight_, int next_) : to(to_), weight(weight_), next(next_) {}
 
     // 重载输出
     friend std::ostream &operator<<(std::ostream &out, const edge_node &node) {
-      out << "node(line=" << node.line << ", to=" << node.to << ", weight=" << node.weight << ", next=" << node.next
+      out << "node(to=" << node.to << ", weight=" << node.weight << ", next=" << node.next
           << ")";
       return out;
     }
@@ -61,15 +59,28 @@ public:
     return *(this);
   }
 
+  /*!
+   * 构造函数
+   * @param size 最大节点编号
+   */
   explicit linked_edges(size_t size) : edge_size(size) { data_init(); }
 
-  void add_edge(int from, int to, int weight, int line) {
+  /*!
+   * 加单向边
+   * @param from
+   * @param to
+   * @param weight
+   */
+  void add_edge(int from, int to, int weight) {
     cnt++;
-    (*edges)[cnt] = edge_node(to, weight, (*heads)[from], line);
-//    std::cout << "add_edge: from=" << from << ",\t" << edges[cnt] << std::endl;
+    (*edges)[cnt] = edge_node(to, weight, (*heads)[from]);
     (*heads)[from] = cnt;
   }
 
+  /*!
+   * 取得第一个有边的节点
+   * @return
+   */
   int get_head_first() {
     int head_first = 0;
     while ((*heads)[head_first] == 0) head_first++;

@@ -20,8 +20,10 @@ file(GLOB_RECURSE source_files
         "${PROJECT_SOURCE_DIR}/chilib/*.hpp")
 message(STATUS "Source files: ${source_files}")
 
+add_executable(task1 ${PROJECT_SOURCE_DIR}/main.c ${source_files})
 add_executable(metro ${PROJECT_SOURCE_DIR}/metro.cpp ${source_files})
 add_executable(pq-test ${PROJECT_SOURCE_DIR}/pq_test.cpp ${source_files})
+add_executable(le-test ${PROJECT_SOURCE_DIR}/linked_edges_test.cpp ${source_files})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

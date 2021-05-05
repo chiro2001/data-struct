@@ -48,8 +48,8 @@ void data_read_metro(const char *filename, chilib::linked_edges &edges) {
         from = id + 1;
         continue;
       }
-      edges.add_edge(from, id + 1, time, line_id);
-      edges.add_edge(id + 1, from, time, line_id);
+      edges.add_edge(from, id + 1, time);
+      edges.add_edge(id + 1, from, time);
       from = id + 1;
     }
   }
@@ -153,6 +153,7 @@ void draw(chilib::linked_edges &edges, chilib::vector<chilib::string> &names) {
 int find_most_exchanged(chilib::linked_edges &edges, int &max_degree) {
   int id = -1;
   for (size_t i = 1; i <= edges.get_node_size(); i++) {
+    // degree 即为当前节点度
     int degree = 0;
     auto it = edges.set_from(i).begin();
     while (it != edges.end()) {
@@ -160,6 +161,7 @@ int find_most_exchanged(chilib::linked_edges &edges, int &max_degree) {
       degree++;
     }
     if (degree > max_degree) {
+      // 取节点度最大值并且记录节点id
       max_degree = degree;
       id = i;
     }

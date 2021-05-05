@@ -1,0 +1,26 @@
+
+case 1:
+connected: 1
+degree distribution:
+node0:4,node1:1,node2:1,node3:1,node4:1,
+clustering coefficient:0.000000
+the shortest path between 1 and 3: 4
+Path: 1 0 3 
+diameter:7
+radius:4
+
+case 2:
+connected: 1
+degree distribution:
+node0:1,node1:3,node2:2,node3:3,node4:3,node5:1,node6:3,
+clustering coefficient:0.238095
+the shortest path between 1 and 3: 7
+Path: 1 2 3 
+diameter:16
+radius:9
+
+case 3:
+connected: 0
+degree distribution:
+node0:3,node1:2,node2:2,node3:3,node4:4,node5:2,node6:4,node7:2,node8:1,node9:1,
+clustering coefficient:0.600000
