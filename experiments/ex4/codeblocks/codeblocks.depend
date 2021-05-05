@@ -1,0 +1,40 @@
+# depslib dependency file v1.0
+1620220931 source:d:\programs\data-struct\experiments\ex4\src\metro.cpp
+	<cstdio>
+	<cstdlib>
+	<iostream>
+	"chilib/chistring.hpp"
+	"chilib/chivector.hpp"
+	"chilib/queue.hpp"
+	"chilib/linked_edges.hpp"
+
+1619869297 d:\programs\data-struct\experiments\ex4\src\chilib\chistring.hpp
+	<cstring>
+	<sstream>
+	<memory>
+	"iterator_base.hpp"
+
+1619698676 d:\programs\data-struct\experiments\ex4\src\chilib\iterator_base.hpp
+	<memory>
+
+1619877285 d:\programs\data-struct\experiments\ex4\src\chilib\chivector.hpp
+	<iostream>
+	"linked_list.hpp"
+	"iterator_base.hpp"
+	<stdexcept>
+	<utility>
+	<initializer_list>
+
+1619875646 d:\programs\data-struct\experiments\ex4\src\chilib\linked_list.hpp
+	<memory>
+	<stdexcept>
+	<initializer_list>
+	"iterator_base.hpp"
+	"chistring.hpp"
+
+1620218750 d:\programs\data-struct\experiments\ex4\src\chilib\queue.hpp
+	"chivector.hpp"
+
+1620220571 d:\programs\data-struct\experiments\ex4\src\chilib\linked_edges.hpp
+	"chivector.hpp"
+
