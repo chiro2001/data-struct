@@ -61,7 +61,7 @@ int main() {
   const int MAX_NUM = 10;
   char buff[SIZE];
   char num[MAX_NUM];
-  const bool use_graphviz = true;
+  const bool use_graphviz = false;
   /**
    * ===============================================================
    * ||                   End Configuration                       ||
