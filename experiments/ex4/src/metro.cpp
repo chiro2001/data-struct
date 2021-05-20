@@ -230,7 +230,8 @@ void compute_ecc(chilib::linked_edges &edges, int &d, int &r) {
 int main() {
   // 配置
   // 打开这个开关，会使用Graphviz绘制整个地铁站的图像
-  const bool draw_image = false;
+//  const bool draw_image = false;
+  const bool draw_image = true;
   // 起点和目的地名称
   chilib::string station1_name = "大学城",
           station2_name = "机场";
@@ -244,7 +245,8 @@ int main() {
   printf("这个图%s联通的.\n", is_map_connected(edges) ? "是" : "否");
   int max_degree = 0;
   int most_exchanged = find_most_exchanged(edges, max_degree);
-  printf("线路图中换乘线路最多的站点是%s, 共有 %d 条线路通过.\n", names[most_exchanged - 1].c_str(), max_degree);
+  printf("线路图中换乘线路最多的站点是%s, 共有 %d 条线路通过.\n",
+         names[most_exchanged - 1].c_str(), max_degree / 2);
   chilib::vector<int> distance;
   dijkstra(most_exchanged, edges, distance, nullptr);
 // 打印最短长度信息
