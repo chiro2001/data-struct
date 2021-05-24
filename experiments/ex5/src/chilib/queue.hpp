@@ -7,20 +7,9 @@
 #define CHILIB_QUEUE_HPP
 
 #include "chivector.hpp"
+#include "algo.hpp"
 
 namespace chilib {
-
-template<typename T>
-struct less {
-  // 伪函数
-  constexpr bool operator()(const T &x, const T &y) const { return x < y; }
-};
-
-template<typename T>
-struct greater {
-  // 伪函数
-  constexpr bool operator()(const T &x, const T &y) const { return x > y; }
-};
 
 // 默认使用 less 的比较函数
 template<typename T, typename Cmp = less<T>>

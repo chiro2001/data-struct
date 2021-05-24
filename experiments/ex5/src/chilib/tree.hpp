@@ -2,8 +2,8 @@
 // Created by Chiro on 2021/4/6.
 //
 
-#ifndef CHILIB_BTREE_HPP
-#define CHILIB_BTREE_HPP
+#ifndef CHILIB_TREE_HPP
+#define CHILIB_TREE_HPP
 
 #include <memory>
 #include <utility>
@@ -15,8 +15,9 @@
 namespace chilib {
 using std::shared_ptr;
 
+// 二叉树
 template<typename T>
-class btree {
+class binary_tree {
 private:
   T data{};
   // 是否线索化
@@ -26,17 +27,17 @@ private:
   // 层数
   int height = -1;
   // 左右孩子
-  shared_ptr<btree> child_left = nullptr, child_right = nullptr;
+  shared_ptr<binary_tree> child_left = nullptr, child_right = nullptr;
 
 public:
-  explicit btree(T val) : data(val) {}
+  explicit binary_tree(T val) : data(val) {}
 
-  explicit btree(const T *val) : data(*val) {}
+  explicit binary_tree(const T *val) : data(*val) {}
 
-  btree() = default;
+  binary_tree() = default;
 
   // 重载输出
-  friend std::ostream &operator<<(std::ostream &out, btree &tr) {
+  friend std::ostream &operator<<(std::ostream &out, binary_tree &tr) {
     out << "Tree(" << tr.get_data() << ", ";
     if (tr.child_left != nullptr) out << *(tr.child_left) << ", ";
     else out << "nullptr, ";
@@ -46,16 +47,20 @@ public:
     return out;
   }
 
-  static shared_ptr<btree> make(T &d) {
-    auto p = new btree(d);
-    return std::shared_ptr<btree>(p);
+  static shared_ptr<binary_tree> make(T &&d) {
+    auto p = new binary_tree(d);
+    return std::shared_ptr<binary_tree>(p);
+  }
+
+  static shared_ptr<binary_tree> make(T &d) {
+    return make(std::forward<T>(d));
   }
 
   T &get_data() { return data; }
 
-  shared_ptr<btree> &get_left() { return child_left; }
+  shared_ptr<binary_tree> &get_left() { return child_left; }
 
-  shared_ptr<btree> &get_right() { return child_right; }
+  shared_ptr<binary_tree> &get_right() { return child_right; }
 
   bool &get_is_threading() { return is_in_threading; }
 
@@ -84,7 +89,7 @@ public:
    * @return
    */
   template<typename F>
-  constexpr void traversal(const traversal_type &method, F const &callback, vector <btree<T>> *stack = nullptr) {
+  constexpr void traversal(const traversal_type &method, F const &callback, vector<binary_tree<T>> *stack = nullptr) {
     if (stack != nullptr) stack->emplace_back(*this);
     if (method == preother) {
       if (!callback(*this)) return;
@@ -156,24 +161,25 @@ public:
    * 广度优先遍历
    * @tparam F1 bool(btree<T>&, bool*)
    * @tparam F2 bool(btree<T>&, int&, bool*)
-   * @param tree 目标树
+   * @param binary_tree 目标树
    * @param on_item 每个元素的回调
    * @param on_layer 每一层的回调
    * @param includes_null=false 是否在元素回调中包含空节点
    */
   template<typename F1, typename F2>
   static void
-  traversal_bfs(shared_ptr<btree> &tree, F1 const &on_item, F2 const &on_layer, const bool includes_null = false) {
-    if (tree == nullptr) return;
-    vector<shared_ptr<btree> *> q;
+  traversal_bfs(shared_ptr<binary_tree> &binary_tree, F1 const &on_item, F2 const &on_layer,
+                const bool includes_null = false) {
+    if (binary_tree == nullptr) return;
+    vector<shared_ptr<chilib::binary_tree<T>> *> q;
     int height = 0;
-    tree->height = height;
-    shared_ptr<btree> *tree_temp = &tree;
+    binary_tree->height = height;
+    shared_ptr<chilib::binary_tree<T>> *tree_temp = &binary_tree;
     q.emplace_back(tree_temp);
     bool new_layer = false;
     bool end_all = false;
     while (!q.empty()) {
-      shared_ptr<btree> *top = q.front();
+      shared_ptr<chilib::binary_tree<T>> *top = q.front();
       if (!on_item(*top, &end_all)) {
         if (end_all) return;
         q.pop_front();
@@ -192,11 +198,11 @@ public:
         q.pop_front();
         continue;
       }
-      shared_ptr<btree> &left = (*top)->get_left(), &right = (*top)->get_right();
+      shared_ptr<chilib::binary_tree<T>> &left = (*top)->get_left(), &right = (*top)->get_right();
       if ((*top)->height > height) height = (*top)->height;
-      auto push_if = [&q, &includes_null, &height](shared_ptr<btree> &child) {
+      auto push_if = [&q, &includes_null, &height](shared_ptr<chilib::binary_tree<T>> &child) {
         if (child != nullptr || includes_null) {
-          shared_ptr<btree> *tmp = &child;
+          shared_ptr<chilib::binary_tree<T>> *tmp = &child;
           if (!includes_null) (*tmp)->height = height + 1;
           q.emplace_back(tmp);
         }
@@ -220,42 +226,15 @@ public:
    */
   template<typename F>
   constexpr void traversal_dfs(const traversal_type method, F const &callback) {
-    vector <btree<T>> stack;
+    vector<binary_tree<T>> stack;
     // 利用闭包特性传递栈信息
-    auto wrapper = [&stack, &callback](btree<T> &tr) -> bool {
+    auto wrapper = [&stack, &callback](binary_tree<T> &tr) -> bool {
       return callback(tr, stack);
     };
     traversal(method, wrapper, &stack);
   }
-
-#if 0
-  /*!
-   * 深度优先遍历（含栈）
-   * @tparam F bool(btree<T>&, vector<btree<T>>&)
-   * @param callback 回调函数
-   * @param stack 调用栈
-   */
-  template<typename F>
-  void traversal_dfs_inside(const traversal_type method, F const &callback, vector <btree<T>> &stack) {
-    stack.emplace_back(*this);
-    if (method == preother) {
-      if (!callback(*this, stack)) return;
-      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
-      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
-    } else if (method == inorder) {
-      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
-      if (!callback(*this, stack)) return;
-      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
-    } else if (method == postoder) {
-      if (this->get_left() != nullptr) this->get_left()->traversal_dfs_inside(method, callback, stack);
-      if (this->get_right() != nullptr) this->get_right()->traversal_dfs_inside(method, callback, stack);
-      if (!callback(*this, stack)) return;
-    }
-    stack.pop_back();
-  }
-#endif
 };
 
 }
 
-#endif //CHILIB_BTREE_HPP
+#endif //CHILIB_TREE_HPP

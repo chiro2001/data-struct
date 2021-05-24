@@ -6,9 +6,19 @@
 #ifndef CHILIB_ALGO_HPP
 #define CHILIB_ALGO_HPP
 
-#include "queue.hpp"
-
 namespace chilib {
+
+template<typename T>
+struct less {
+  // 伪函数
+  constexpr bool operator()(const T &x, const T &y) const { return x < y; }
+};
+
+template<typename T>
+struct greater {
+  // 伪函数
+  constexpr bool operator()(const T &x, const T &y) const { return x > y; }
+};
 
 template<typename T, typename Cmp = chilib::less<T>>
 void qsort(chilib::vector<T> &data, int start = -1, int end = -1) {
