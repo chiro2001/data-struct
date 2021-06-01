@@ -2,3 +2,5 @@
 *.o
 cmake-build-debug/
 *.zip
+
+.vscode/
