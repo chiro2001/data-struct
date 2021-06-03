@@ -106,7 +106,7 @@ int main() {
     chilib::vector<bool> points_same(points_count.size());
     chilib::priority_queue<int, chilib::greater<int>> index_ends;
     int count = 0;
-    for (int index = 0; index < points_count.size(); index++) {
+    for (int index = 0; index < (int) points_count.size(); index++) {
       bool changed = false;
       dep("index now: %d\n", index);
       // 遇到新的开始阶段就计数加一
@@ -130,7 +130,7 @@ int main() {
       }
       if (!changed) points_same[index] = true;
     }
-    for (int i = 0; i < points_count.size(); i++) {
+    for (size_t i = 0; i < points_count.size(); i++) {
       dep("points_count[%d] = %d, (%2d - %2d), %s\n", i, points_count[i],
           i < periods_data.size() ? periods_data[i].start : -1,
           i < periods_data.size() ? periods_data[i].end : -1,
@@ -140,10 +140,10 @@ int main() {
     int period_max_count = 0;
     for (int i : points_count)
       if (i > period_max_count) period_max_count = i;
-    for (int i = 0; i < points_count.size(); i++) {
+    for (size_t i = 0; i < points_count.size(); i++) {
       if (period_max_count == points_count[i]) {
         int period_index_max_start = i;
-        int origin_i = i;
+        size_t origin_i = i;
         while (i != points_count.size() - 1 && points_count[i + 1] == period_max_count && points_same[i + 1]) i++;
         if (i != origin_i) {
           int period_index_max_end = ++i;
@@ -153,7 +153,7 @@ int main() {
         }
       }
     }
-    for (int i = 0; i < result.size(); i++)
+    for (size_t i = 0; i < result.size(); i++)
       printf("%d %d%s", result[i].first, result[i].second,
              i == result.size() - 1 ? "\n" : ", ");
   }

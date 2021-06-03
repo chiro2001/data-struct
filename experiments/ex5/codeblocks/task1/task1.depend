@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1621582490 source:d:\programs\data-struct\experiments\ex5\src\task1.c
+	<stdio.h>
+	<stdlib.h>
+
