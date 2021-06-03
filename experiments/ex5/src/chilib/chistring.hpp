@@ -82,7 +82,7 @@ public:
     }
   };
 
-  iterator begin() const  { return iterator(*this->mdata); }
+  iterator begin() const { return iterator(*this->mdata); }
 
   iterator end() const { return iterator(*(this->mdata + this->length())); }
 
@@ -180,6 +180,10 @@ public:
 
   char &operator[](size_t pos) {
     return this->at(pos);
+  }
+
+  bool operator<(const string &s) const {
+    return std::strcmp(s.mdata, this->mdata) > 0;
   }
 };
 }

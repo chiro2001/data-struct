@@ -1,6 +1,7 @@
 #include <cstdio>
-#include <map>
-#include "chilib/algo.hpp"
+// #include <map>
+#include "chilib/queue.hpp"
+#include "chilib/chimap.hpp"
 
 class Period {
 public:
@@ -43,25 +44,35 @@ int main() {
     chilib::priority_queue<StuData, chilib::greater<StuData>> tmp;
     // 用来记录有多少阶段
     chilib::priority_queue<int, chilib::greater<int>> periods_queue;
-    std::map<int, bool> periods_map;
+    // std::map<int, bool> periods_map;
+    chilib::map<int, bool> periods_map;
     chilib::vector<int> periods;
     chilib::vector<Period> periods_data;
     chilib::vector<int> points_count;
     // 从start转换到index
-    std::map<int, int> start2index;
+    // std::map<int, int> start2index;
+    chilib::map<int, int> start2index;
     for (int i = 0; i < m; i++) {
       StuData d;
       scanf("%d%d", &d.start, &d.end);
       q.push(d);
       tmp.push(d);
-      if (periods_map.find(d.start) == periods_map.end()) {
+      if (!periods_map.has(d.start)) {
         periods_queue.push(d.start);
         periods_map[d.start] = true;
       }
-      if (periods_map.find(d.end) == periods_map.end()) {
+      if (!periods_map.has(d.end)) {
         periods_queue.push(d.end);
         periods_map[d.end] = true;
       }
+      // if (periods_map.find(d.start) == periods_map.end()) {
+      //   periods_queue.push(d.start);
+      //   periods_map[d.start] = true;
+      // }
+      // if (periods_map.find(d.end) == periods_map.end()) {
+      //   periods_queue.push(d.end);
+      //   periods_map[d.end] = true;
+      // }
     }
     dep("origin data: ");
     while (!tmp.empty()) {
@@ -75,13 +86,15 @@ int main() {
       periods.emplace_back(periods_queue.top());
       if (started > 0) {
         periods_data.emplace_back(Period{started, periods_queue.top()});
-        start2index[started] = periods_data.size() - 1;
+        // start2index[started] = (int) periods_data.size() - 1;
+        start2index.insert(chilib::pair<int, int>{started, (int) periods_data.size() - 1});
       }
       points_count.emplace_back(0);
       started = periods_queue.top();
       periods_queue.pop();
     }
-    start2index[started] = periods_data.size();
+    // start2index[started] = (int) periods_data.size();
+    start2index.insert(chilib::pair<int, int>{started, (int) periods_data.size()});
     // points_count.emplace_back(0);
     dep("periods: ");
     for (const auto &d : periods) dep("%d ", d);
@@ -98,7 +111,7 @@ int main() {
       dep("index now: %d\n", index);
       // 遇到新的开始阶段就计数加一
       while (!q.empty() && start2index[q.top().start] == index) {
-        const auto &top = q.top();
+        auto &top = q.top();
         index_ends.push(start2index[top.end]);
         dep("end push %d(%d)\n", start2index[top.end], top.end);
         count++;
