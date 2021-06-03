@@ -1,6 +1,7 @@
 *.exe
 *.o
 cmake-build-debug/
+cmake-build-release/
 *.zip
 
 .vscode/
